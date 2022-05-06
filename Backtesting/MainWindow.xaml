@@ -1,0 +1,248 @@
+﻿<Window x:Class="Backtesting.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Backtesting"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        
+        xmlns:syncfusion="clr-namespace:Syncfusion.Windows.PdfViewer;assembly=Syncfusion.PdfViewer.WPF"
+        
+        mc:Ignorable="d"
+        FontSize="16"
+        FontFamily="Gill Sans MT"
+        Title="Backtester" Height="650" Width="1280">
+        
+
+    
+    <Grid x:Name="StockWindow">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="15"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="15"/>
+        </Grid.RowDefinitions>
+
+
+
+        <StackPanel x:Name="MenuPanel" Grid.Row="1" Grid.Column="0"  Grid.RowSpan="2" >
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="Margin" Value="0,0,0,0"/>
+                </Style>
+
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Margin" Value="0,0,0,0"/>
+                    <Setter Property="FontFamily" Value="Gill Sans MT"/>
+                </Style>
+
+                <Style TargetType="{x:Type Button}">
+
+                    <Setter Property="Height" Value="35"/>
+                    <Setter Property="Background" Value="{x:Null}"/>
+                    <Setter Property="Margin" Value="0,0,0,3"/>
+                    <Setter Property="FontFamily" Value="Gill Sans MT"/>
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Border Background="{TemplateBinding Background}"  BorderBrush="Black" BorderThickness="0" CornerRadius="0">
+                                    <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#515151"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Resources>
+
+            <TextBlock Text="Menu" TextAlignment="Center" FontSize="26" Grid.Column="1" Grid.Row="1" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+            <Button x:Name="StocksButton" Click="StocksButton_Click">
+                <DockPanel>
+                    <Image Source="Resources\combo-chart.png" Stretch="None" Margin="10,0,10,0"/>
+                    <TextBlock>Stocks</TextBlock>
+                </DockPanel>
+            </Button>
+
+            <Button x:Name="EvalButton" Click="EvalButton_Click">
+                <DockPanel>
+                    <Image Source="Resources\statistics-report.png" Stretch="None" Margin="10,0,10,0"/>
+                    <TextBlock>Evaluations</TextBlock>
+                </DockPanel>
+            </Button>
+
+            <Button x:Name="SettingsButton" Click="SettingsButton_Click">
+                <DockPanel>
+                    <Image Source="Resources\settings.png" Stretch="None" Margin="10,0,10,0"/>
+                    <TextBlock>Settings</TextBlock>
+                </DockPanel>
+            </Button>
+
+            <Button x:Name="InternetButton" Click="InternetButton_Click">
+                <DockPanel>
+                    <Image Source="Resources\internet_20.png" Stretch="None" Margin="10,0,10,0"/>
+                    <TextBlock>Internet</TextBlock>
+                </DockPanel>
+            </Button>
+
+            <Button x:Name="AnalysisButton" Click="AnalysisButton_Click">
+                <DockPanel>
+                    <Image Source="Resources\Chip.png" Stretch="None" Margin="10,0,10,0"/>
+                    <TextBlock>Analysis</TextBlock>
+                </DockPanel>
+            </Button>
+
+        </StackPanel>
+        
+        
+        
+        <Grid x:Name="AllDashboards" Grid.Row="1" Grid.Column="1">
+            
+            <Grid x:Name="StockGrid" Grid.Row="1" Grid.Column="1" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Background="Green" Margin="0,0,0,0" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Name="Stocklist">
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <lvc:CartesianChart Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1000" Grid.RowSpan="4" x:Name="HomeScreenChart">
+
+                </lvc:CartesianChart>
+
+                <Button Grid.Column="1" Grid.Row="6">
+                    Hej
+                </Button>
+
+            </Grid>
+
+            <Grid x:Name="SettingsGrid" Grid.Row="0" Grid.Column="1" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Settings" FontSize="32" FontWeight="SemiBold"/>
+
+                <Grid x:Name="SettingsForm" Grid.Column="1" Grid.Row="0" Grid.RowSpan="100" Grid.ColumnSpan="1">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="30"/>
+
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="100"/>
+                        
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+
+                    </Grid.RowDefinitions>
+
+                    <CheckBox VerticalAlignment="Center" Grid.Row="0" x:Name="barChartCheckBox"/>
+                    <Image Grid.Column="1" Grid.ColumnSpan="3"  Source="Resources\barchartPic.PNG"/>
+                    <CheckBox VerticalAlignment="Center" Grid.Row="1" x:Name="lineChartCheckBox"/>
+                    <Image Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Source="Resources\linechartPic.PNG"/>
+
+                    <TextBox Grid.Row="2" Grid.Column="2"  TextAlignment="Center" BorderThickness="1" MaxLength="2"  Text="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
+
+                    <Slider Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="1" Maximum="50" Margin="0,5" Value="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="4" Grid.ColumnSpan="4" Text="Standard deviations from moving average:"/>
+                    <TextBox Grid.Row="4" Grid.Column="4" TextAlignment="Center" BorderThickness="1" Text="{Binding Path=Settings.BollingerStDevs, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="5" Grid.ColumnSpan="4" Text="Moving average days:"/>
+                    <TextBox Grid.Row="5" Grid.Column="4" TextAlignment="Center" BorderThickness="1" Text="{Binding Path=Settings.BollingerAvgDays, Mode=TwoWay}"/>
+                    <Button x:Name="DefaultSettingsButton" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="10" Margin="0,10,0,0" Click="DefaultSettingsButton_Click" Content="Set Default"/>
+
+                </Grid>
+                
+                
+
+
+            </Grid>
+
+            <Grid x:Name="WebViewer" Visibility="Collapsed" Grid.Row="1" Grid.Column="1" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+
+                <syncfusion:PdfViewerControl Grid.RowSpan="4" Grid.ColumnSpan="100" x:Name="pdfViewer"></syncfusion:PdfViewerControl>
+                
+                <Button Grid.Row="5" Click="LoadPDFButton_Click" x:Name="LoadPDFButton" />
+
+            </Grid>
+
+        </Grid>
+
+        
+
+
+
+    </Grid>
+</Window>
