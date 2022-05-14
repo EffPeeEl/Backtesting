@@ -13,6 +13,8 @@ namespace Backtesting.TradeAlgos
         List<PriceData> Buys;
         List<PriceData> Sells;
 
+        private string AlgoName;
+
         public double Score { get; private set; }
 
         public abstract void Buy();
@@ -38,6 +40,13 @@ namespace Backtesting.TradeAlgos
             }
 
         }
+
+        public override string ToString()
+        {
+            return AlgoName;
+        }
+
+
 
     }
 }

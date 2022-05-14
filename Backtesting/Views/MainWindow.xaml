@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Backtesting"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
         
-        xmlns:syncfusion="clr-namespace:Syncfusion.Windows.PdfViewer;assembly=Syncfusion.PdfViewer.WPF"
         
         mc:Ignorable="d"
         FontSize="16"
@@ -65,39 +65,39 @@
                 </Style>
             </StackPanel.Resources>
 
-            <TextBlock Text="Menu" TextAlignment="Center" FontSize="26" Grid.Column="1" Grid.Row="1" FontWeight="SemiBold" Margin="0,0,0,10"/>
+            <TextBlock Text="Stonker" TextAlignment="Center" FontSize="18" Grid.Column="1" Grid.Row="1" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
             <Button x:Name="StocksButton" Click="StocksButton_Click">
                 <DockPanel>
-                    <Image Source="Resources\combo-chart.png" Stretch="None" Margin="10,0,10,0"/>
+                    <Image Source="pack://application:,,,/Resources/combo-chart.png" Stretch="None" Margin="10,0,10,0"/>
                     <TextBlock>Stocks</TextBlock>
                 </DockPanel>
             </Button>
 
             <Button x:Name="EvalButton" Click="EvalButton_Click">
                 <DockPanel>
-                    <Image Source="Resources\statistics-report.png" Stretch="None" Margin="10,0,10,0"/>
+                    <Image Source="pack://application:,,,/Resources/statistics-report.png" Stretch="None" Margin="10,0,10,0"/>
                     <TextBlock>Evaluations</TextBlock>
                 </DockPanel>
             </Button>
 
             <Button x:Name="SettingsButton" Click="SettingsButton_Click">
                 <DockPanel>
-                    <Image Source="Resources\settings.png" Stretch="None" Margin="10,0,10,0"/>
+                    <Image Source="pack://application:,,,/Resources/settings.png" Stretch="None" Margin="10,0,10,0"/>
                     <TextBlock>Settings</TextBlock>
                 </DockPanel>
             </Button>
 
             <Button x:Name="InternetButton" Click="InternetButton_Click">
                 <DockPanel>
-                    <Image Source="Resources\internet_20.png" Stretch="None" Margin="10,0,10,0"/>
+                    <Image Source="pack://application:,,,/Resources/internet_20.png" Stretch="None" Margin="10,0,10,0"/>
                     <TextBlock>Internet</TextBlock>
                 </DockPanel>
             </Button>
 
             <Button x:Name="AnalysisButton" Click="AnalysisButton_Click">
                 <DockPanel>
-                    <Image Source="Resources\Chip.png" Stretch="None" Margin="10,0,10,0"/>
+                    <Image Source="pack://application:,,,/Resources/Chip.png" Stretch="None" Margin="10,0,10,0"/>
                     <TextBlock>Analysis</TextBlock>
                 </DockPanel>
             </Button>
@@ -136,13 +136,84 @@
                     </StackPanel>
                 </ScrollViewer>
 
+
+
+                <s:SciChartSurface x:Name="Surface" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1000" Grid.RowSpan="4" >
+
+                    <s:SciChartSurface.RenderableSeries >
+                        <s:FastCandlestickRenderableSeries DataSeries="{Binding Path=CandleDataSeries}" x:Name="CandleStickRenderableSeries" 
+                            StrokeUp="GreenYellow"
+                            StrokeDown="Red"
+                            FillUp="#33ADFF2F"
+                            FillDown="#33FF0000"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            DataPointWidth="0.5"/>
+                        
+                        <s:FastLineRenderableSeries DataSeries="{Binding Path=UpperBollingerBandSeries}" x:Name="UpperBollingerRenderableSeries"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            />
+                        <s:FastLineRenderableSeries DataSeries="{Binding Path=LowerBollingerBandSeries}" x:Name="LowerBollingerRenderableSeries"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            />
+                    </s:SciChartSurface.RenderableSeries>
+
+                    <s:SciChartSurface.XAxis>
+                        <s:CategoryDateTimeAxis x:Name="rSeriesXAxis"/>
+                    </s:SciChartSurface.XAxis>
+
+                    <s:SciChartSurface.YAxis >
+                        <s:NumericAxis x:Name="rSeriesYAxis"/>
+                    </s:SciChartSurface.YAxis>
+                    
+                    <s:SciChartSurface.ChartModifier>
+                        <s:ModifierGroup>
+                            <!-- Allow drag to zoom on Left mouse -->
+                            <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton"
+                                                 RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF"
+                                                 RubberBandStrokeDashArray="2 2"/>
+                            <!-- Allow pan on Right mouse drag -->
+                            <s:ZoomPanModifier ExecuteOn="MouseRightButton" ClipModeX="None" />
+                            <!-- Allow Dragging YAxis to Scale -->
+                            <s:YAxisDragModifier DragMode="Scale"/>
+                            <!-- Allow Dragging XAxis to Pan -->
+                            <s:XAxisDragModifier DragMode="Pan"/>
+                            <!-- Allow Mousewheel Zoom -->
+                            <s:MouseWheelZoomModifier/>
+                            <!-- Allow Zoom to Extents on double click -->
+                            <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
+                        </s:ModifierGroup>
+                    </s:SciChartSurface.ChartModifier>
+
+                    <!--  XAxis, YAxis omitted for brevity  -->
+
+                </s:SciChartSurface>
+                
+                <!--
                 <lvc:CartesianChart Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1000" Grid.RowSpan="4" x:Name="HomeScreenChart">
 
                 </lvc:CartesianChart>
+                -->
+                
 
-                <Button Grid.Column="1" Grid.Row="6">
-                    Hej
-                </Button>
+                
+
+                <StackPanel Grid.Column="9" Grid.Row="6" >
+                    <ComboBox ItemsSource="{Binding Path=TradeAlgoList}" x:Name="AlgoListBox">
+
+                    </ComboBox>
+
+                    <Button >
+                        Start Algorithm
+                    </Button>
+                    <Button x:Name="CorrelationButton"
+                            Content="Correlation"
+                            Click="CorrelationButton_Click"/>
+
+                </StackPanel>
+                
 
             </Grid>
 
@@ -189,9 +260,9 @@
                     </Grid.RowDefinitions>
 
                     <CheckBox VerticalAlignment="Center" Grid.Row="0" x:Name="barChartCheckBox"/>
-                    <Image Grid.Column="1" Grid.ColumnSpan="3"  Source="Resources\barchartPic.PNG"/>
+                    <Image Grid.Column="1" Grid.ColumnSpan="3"  Source="/Resources\barchartPic.PNG"/>
                     <CheckBox VerticalAlignment="Center" Grid.Row="1" x:Name="lineChartCheckBox"/>
-                    <Image Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Source="Resources\linechartPic.PNG"/>
+                    <Image Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Source="/Resources\linechartPic.PNG"/>
 
                     <TextBox Grid.Row="2" Grid.Column="2"  TextAlignment="Center" BorderThickness="1" MaxLength="2"  Text="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
 
@@ -232,7 +303,7 @@
                     <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
 
-                <syncfusion:PdfViewerControl Grid.RowSpan="4" Grid.ColumnSpan="100" x:Name="pdfViewer"></syncfusion:PdfViewerControl>
+                
                 
                 <Button Grid.Row="5" Click="LoadPDFButton_Click" x:Name="LoadPDFButton" />
 

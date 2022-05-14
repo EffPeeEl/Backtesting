@@ -20,10 +20,10 @@ namespace Backtesting
         public double Trades { get; set; }
 
         //Calculated data
+        public double SMAx { get; set; }
         public double LowerBollinger { get; set; }
         public double UpperBollinger { get; set; }
-
-
+        public double StDevXDays { get; set; }
 
         public override string ToString()
         {

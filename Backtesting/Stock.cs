@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Backtesting
         public string _Ticker;
         public List<PriceData> _priceData;
         private string _filePath;
+
+        
         
         public Stock(string fileName)
         {
@@ -60,52 +63,65 @@ namespace Backtesting
 
 
             double average = 0;
-            double sum = 0;
+            double sum = _priceData[0].ClosingPrice;
             double stDev = 0;
             double stDevSum = 0;
 
-            _priceData[0].LowerBollinger = _priceData[1].ClosingPrice;
-            _priceData[0].UpperBollinger = _priceData[1].ClosingPrice;
+
+            _priceData[0].SMAx = _priceData[0].ClosingPrice;
+            _priceData[0].LowerBollinger = _priceData[0].ClosingPrice;
+            _priceData[0].UpperBollinger = _priceData[0].ClosingPrice;
 
             //Average of first n before 20
             for (int i = 1; i < howManyDays; i++)
             {
-                sum += _priceData[i].ClosingPrice;
                 average = sum / i;
-                avgList.Add(average);
+                sum += _priceData[i].ClosingPrice;
+                
 
-                stDevSum += (_priceData[i].ClosingPrice - average) * (_priceData[i].ClosingPrice - average);
+                stDevSum += Math.Pow(_priceData[i].ClosingPrice - average, 2);
 
                 stDev = Math.Sqrt(stDevSum / i);
 
-                stDevList.Add(stDev);
-
+                _priceData[i].SMAx = average;
+                _priceData[i].StDevXDays = stDev;
                 _priceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
                 _priceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
+
+                
             }
 
 
             //Algo to not run average formula i times, just/20 times
             for (int i = howManyDays; i < _priceData.Count; i++)
             {
+                average = sum / howManyDays;
                 sum -= _priceData[i - howManyDays].ClosingPrice;
                 sum += _priceData[i].ClosingPrice;
-                average = sum / howManyDays;
 
-                stDevSum -= (_priceData[i - howManyDays].ClosingPrice - average) * (_priceData[i - howManyDays].ClosingPrice - average);
-                stDevSum += (_priceData[i].ClosingPrice - average) * (_priceData[i].ClosingPrice - average);
+                
+
+                stDevSum -= Math.Pow(_priceData[i - howManyDays].ClosingPrice - _priceData[i - howManyDays].SMAx, 2);
+                stDevSum += Math.Pow(_priceData[i].ClosingPrice - average, 2);
+
+                if (stDevSum < 0)
+                    stDevSum = stDevSum * -1;
 
                 stDev = Math.Sqrt(stDevSum / howManyDays);
 
-                avgList.Add(average);
-                stDevList.Add(stDev);
 
+                _priceData[i].SMAx = average;
+                _priceData[i].StDevXDays = stDev;
                 _priceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
                 _priceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
+
+
             }
 
 
         }
+
+
 
         public override string ToString()
         {
