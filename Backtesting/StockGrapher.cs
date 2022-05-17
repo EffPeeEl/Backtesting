@@ -17,6 +17,10 @@ namespace Backtesting
     {
         
         public Stock _stock;
+        public StockGrapher(string stockUID)
+        {
+            _stock = new Stock(stockUID);
+        }
 
 
         public OhlcDataSeries<DateTime, double> CreateCandleSciChart(int candleSize)
@@ -133,8 +137,6 @@ namespace Backtesting
         
         internal OhlcDataSeries<DateTime, double> CreateGraphSci(string senderUID, string typeOfChart, int daysInCandle)
         {
-            _stock = new Stock(senderUID);
-
             switch (typeOfChart)
             {
                 case "Candle":
@@ -143,11 +145,28 @@ namespace Backtesting
                     return new OhlcDataSeries<DateTime, double>();
 
             }
-
-
         }
 
+        public (DateTime, double) GetNextDayData()
+        {
+            (DateTime, double) data = (DateTime.Now, 0);
+            if (index < _stock._priceData.Count)
+            {
+            
+                data = (_stock._priceData[index].Date, _stock._priceData[index].ClosingPrice);
+                index++;
 
+            }
+            
+            return data;
+        }
+
+        internal bool isIndexMax()
+        {
+            return index == _stock._priceData.Count;
+        }
+
+        private int index;
         #region Livechart Stuff
         //public SeriesCollection CreateCartesian()
         //{

@@ -22,6 +22,8 @@ using SciChart.Charting.Model.DataSeries;
 using System.Collections.ObjectModel;
 using Backtesting.TradeAlgos;
 using System.Diagnostics;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace Backtesting
 {
@@ -94,6 +96,7 @@ namespace Backtesting
                 {
                     _lowerBollingerBandSeries = value;
                     OnPropertyChanged();
+                    
                 }
             }
         }
@@ -126,7 +129,7 @@ namespace Backtesting
             InitializeAlgos();
 
             CreateStockPanel();
-            stockGrapher = new StockGrapher();
+            
 
 
 
@@ -159,12 +162,63 @@ namespace Backtesting
             }
         }
 
+       
 
-        
+        public bool isSimulationOn;
+        private void RunSimulation(object sender, RoutedEventArgs e)
+        {
+            
+
+            string senderUID = ((FrameworkElement)sender).Uid;
+            LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
+
+            if (rSeriesXAxis != null)
+            {
+                //Axis stays att first one if this step isnt done for some reason
+                rSeriesXAxis.VisibleRange = null;
+                rSeriesYAxis.VisibleRange = null;
+            }
+
+            isSimulationOn = true;
+
+
+            /// HAS to be on different thread or it data wont render until function has returned. 
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                /* run your code here */
+                for (int i = 0; i < 100; i++)
+                {
+                    var x = stockGrapher.GetNextDayData();
+
+                    using (LowerBollingerBandSeries.SuspendUpdates())
+                    {
+                        LowerBollingerBandSeries.Append(x.Item1, x.Item2);
+
+                    }
+                    Thread.Sleep(10);
+
+                }
+            }).Start();
+            
+
+            //while (isSimulationOn)
+            //{
+                
+            //    isSimulationOn = !stockGrapher.isIndexMax();
+                
+            //}
+
+        }
+
+
+
         private void ButtonCreatedByCode_Click(object sender, RoutedEventArgs e)
         {
 
             string senderUID = ((FrameworkElement)sender).Uid;
+
+            stockGrapher = new StockGrapher(senderUID);
 
             if(rSeriesXAxis != null)
             {
@@ -187,9 +241,11 @@ namespace Backtesting
             UpperBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, true, Settings.BollingerStDevs, Settings.BollingerAvgDays);
             LowerBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, false, Settings.BollingerStDevs, Settings.BollingerAvgDays);
 
-            Trace.WriteLine(stockGrapher._stock._priceData);
+            
 
         }
+
+
 
 
         #region MenuBarButtons
@@ -255,7 +311,7 @@ namespace Backtesting
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)
         {
-            CorrelationMatrixWindow subWindow = new CorrelationMatrixWindow();
+            CorrelationMatrixWindow subWindow = new CorrelationMatrixWindow(stockGrapher._stock);
             subWindow.Show();
         }
     }

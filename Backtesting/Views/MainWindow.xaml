@@ -67,6 +67,8 @@
 
             <TextBlock Text="Stonker" TextAlignment="Center" FontSize="18" Grid.Column="1" Grid.Row="1" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
+            
+            <!--#region MenuButtons-->
             <Button x:Name="StocksButton" Click="StocksButton_Click">
                 <DockPanel>
                     <Image Source="pack://application:,,,/Resources/combo-chart.png" Stretch="None" Margin="10,0,10,0"/>
@@ -101,7 +103,9 @@
                     <TextBlock>Analysis</TextBlock>
                 </DockPanel>
             </Button>
-
+            <!--#endregion-->
+            
+            
         </StackPanel>
         
         
@@ -138,10 +142,14 @@
 
 
 
-                <s:SciChartSurface x:Name="Surface" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1000" Grid.RowSpan="4" >
+                <s:SciChartSurface x:Name="Surface" 
+                                   Grid.Row="0" Grid.Column="1" 
+                                   Grid.ColumnSpan="1000" 
+                                   Grid.RowSpan="4" >
 
                     <s:SciChartSurface.RenderableSeries >
-                        <s:FastCandlestickRenderableSeries DataSeries="{Binding Path=CandleDataSeries}" x:Name="CandleStickRenderableSeries" 
+                        <s:FastCandlestickRenderableSeries DataSeries="{Binding Path=CandleDataSeries}" 
+                            x:Name="CandleStickRenderableSeries" 
                             StrokeUp="GreenYellow"
                             StrokeDown="Red"
                             FillUp="#33ADFF2F"
@@ -158,6 +166,7 @@
                             StrokeThickness="1"
                             AntiAliasing="False"
                             />
+                        
                     </s:SciChartSurface.RenderableSeries>
 
                     <s:SciChartSurface.XAxis>
@@ -211,6 +220,10 @@
                     <Button x:Name="CorrelationButton"
                             Content="Correlation"
                             Click="CorrelationButton_Click"/>
+                    <Button x:Name="SimulationButton"
+                            Content="Simulate"
+                            Click="RunSimulation"
+                            />
 
                 </StackPanel>
                 

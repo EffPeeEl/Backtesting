@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         Title="CorrelationMatrixWindow" Height="450" Width="800">
     <Grid>
-        
+        <ScrollViewer x:Name="CorrScroller">
+            
+        </ScrollViewer>
     </Grid>
 </Window>

@@ -19,9 +19,15 @@ namespace Backtesting
     /// </summary>
     public partial class CorrelationMatrixWindow : Window
     {
-        public CorrelationMatrixWindow()
+        Stock CorrMatrixStock;
+        public CorrelationMatrixWindow(Stock _stock)
         {
+            CorrMatrixStock = _stock;
+
             InitializeComponent();
         }
+
+        
+
     }
 }
