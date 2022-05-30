@@ -14,7 +14,7 @@ namespace Backtesting
     {
         public string _Name;
         public string _Ticker;
-        public List<PriceData> _priceData;
+        public List<PriceData> PriceData;
         private string _filePath;
 
         
@@ -23,7 +23,7 @@ namespace Backtesting
         {
             _Name = fileName.Remove(fileName.IndexOf('-'), fileName.Length - fileName.IndexOf('-'));
 
-            _priceData = new List<PriceData>();
+            PriceData = new List<PriceData>();
             _filePath = @"D:\Finance\OMX Stonks" + "\\" + fileName;
 
             //Config for CSV
@@ -50,7 +50,7 @@ namespace Backtesting
             //Converts from raw PriceData from CSV file String to mathable
             foreach (var item in rawDataList)
             {
-                _priceData.Add(new PriceData(item));
+                PriceData.Add(new PriceData(item));
             }
 
         }
@@ -63,46 +63,46 @@ namespace Backtesting
 
 
             double average = 0;
-            double sum = _priceData[0].ClosingPrice;
+            double sum = PriceData[0].ClosingPrice;
             double stDev = 0;
             double stDevSum = 0;
 
 
-            _priceData[0].SMAx = _priceData[0].ClosingPrice;
-            _priceData[0].LowerBollinger = _priceData[0].ClosingPrice;
-            _priceData[0].UpperBollinger = _priceData[0].ClosingPrice;
+            PriceData[0].SMAx = PriceData[0].ClosingPrice;
+            PriceData[0].LowerBollinger = PriceData[0].ClosingPrice;
+            PriceData[0].UpperBollinger = PriceData[0].ClosingPrice;
 
             //Average of first n before 20
             for (int i = 1; i < howManyDays; i++)
             {
                 average = sum / i;
-                sum += _priceData[i].ClosingPrice;
+                sum += PriceData[i].ClosingPrice;
                 
 
-                stDevSum += Math.Pow(_priceData[i].ClosingPrice - average, 2);
+                stDevSum += Math.Pow(PriceData[i].ClosingPrice - average, 2);
 
                 stDev = Math.Sqrt(stDevSum / i);
 
-                _priceData[i].SMAx = average;
-                _priceData[i].StDevXDays = stDev;
-                _priceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
-                _priceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
+                PriceData[i].SMAx = average;
+                PriceData[i].StDevXDays = stDev;
+                PriceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
+                PriceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
 
                 
             }
 
 
             //Algo to not run average formula i times, just/20 times
-            for (int i = howManyDays; i < _priceData.Count; i++)
+            for (int i = howManyDays; i < PriceData.Count; i++)
             {
                 average = sum / howManyDays;
-                sum -= _priceData[i - howManyDays].ClosingPrice;
-                sum += _priceData[i].ClosingPrice;
+                sum -= PriceData[i - howManyDays].ClosingPrice;
+                sum += PriceData[i].ClosingPrice;
 
                 
 
-                stDevSum -= Math.Pow(_priceData[i - howManyDays].ClosingPrice - _priceData[i - howManyDays].SMAx, 2);
-                stDevSum += Math.Pow(_priceData[i].ClosingPrice - average, 2);
+                stDevSum -= Math.Pow(PriceData[i - howManyDays].ClosingPrice - PriceData[i - howManyDays].SMAx, 2);
+                stDevSum += Math.Pow(PriceData[i].ClosingPrice - average, 2);
 
                 if (stDevSum < 0)
                     stDevSum = stDevSum * -1;
@@ -110,10 +110,10 @@ namespace Backtesting
                 stDev = Math.Sqrt(stDevSum / howManyDays);
 
 
-                _priceData[i].SMAx = average;
-                _priceData[i].StDevXDays = stDev;
-                _priceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
-                _priceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
+                PriceData[i].SMAx = average;
+                PriceData[i].StDevXDays = stDev;
+                PriceData[i].LowerBollinger = (average - (howManyStDevsFromAvg * stDev));
+                PriceData[i].UpperBollinger = (average + (howManyStDevsFromAvg * stDev));
 
 
             }

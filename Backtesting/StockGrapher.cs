@@ -16,73 +16,24 @@ namespace Backtesting
     public class StockGrapher
     {
         
-        public Stock _stock;
+        public Stock SelectedStock;
+
         public StockGrapher(string stockUID)
         {
-            _stock = new Stock(stockUID);
+            SelectedStock = new Stock(stockUID);
         }
-
 
         public OhlcDataSeries<DateTime, double> CreateCandleSciChart(int candleSize)
         {
-            List<PriceData> priceList = _stock._priceData;
-            double highest;
-            double lowest;
-            double starting;
-            double closing;
 
             OhlcDataSeries<DateTime, double> ohlcSci = new OhlcDataSeries<DateTime, double>();
 
-
-            for (int i = 0; i < priceList.Count; i++)
+            for (int i = 0; i < Math.Ceiling((double)SelectedStock.PriceData.Count / candleSize); i++)
             {
-                highest = 0;
-                lowest = 150000;
-                starting = priceList[i].ClosingPrice;
+                var candleData = GetNextDayDataCandle(i * candleSize, candleSize);
 
-                //Checks if on last round, if so, finishes the loop
-                if (i >= priceList.Count - candleSize)
-                    candleSize = priceList.Count - i;
-
-                for (int j = 0; j < candleSize; j++)
-                {
-
-                    if (priceList[i].ClosingPrice > highest)
-                        highest = priceList[i].ClosingPrice;
-                    if (priceList[i].ClosingPrice < lowest)
-                        lowest = priceList[i].ClosingPrice;
-                    i++;
-                }
-                i--;
-
-                closing = priceList[i].ClosingPrice;
-
-                ohlcSci.Append(priceList[i].Date, starting, highest, lowest, closing);
-
-
-
-                //highest = 0;
-                //lowest = 150000;
-                //starting = priceList[i].ClosingPrice;
-
-                ////Checks if on last round, if so, finishes the loop
-                //if (i >= priceList.Count - candleSize)
-                //    candleSize = priceList.Count - i;
-
-                //for (int j = 0; j < candleSize; j++)
-                //{
-
-                //    if (priceList[i].ClosingPrice > highest)
-                //        highest = priceList[i].ClosingPrice;
-                //    if (priceList[i].ClosingPrice < lowest)
-                //        lowest = priceList[i].ClosingPrice;
-                //    i++;
-                //}
-                //i--;
-
-                //closing = priceList[i - 1].ClosingPrice;
-
-                //ohlcSci.Append(priceList[i].Date, starting, highest, lowest, closing);
+                ohlcSci.Append(candleData.Item1, candleData.Item2.Open, candleData.Item2.High, candleData.Item2.Low, candleData.Item2.Close);
+                
             }
 
             return ohlcSci;
@@ -93,43 +44,38 @@ namespace Backtesting
 
         public XyDataSeries<DateTime, double> CreateBollingerSci(int candleSize, bool isUpper, double _bollingerStDevs, int _bollingerAvgDayCount)
         {
-            _stock.CreateBollingerValues(_bollingerStDevs, _bollingerAvgDayCount);
+            SelectedStock.CreateBollingerValues(_bollingerStDevs, _bollingerAvgDayCount);
 
             
             XyDataSeries<DateTime, double> BollingerSeries = new XyDataSeries<DateTime, double>();
             double sum;
             double averageInCandle = 0;
 
-            
-
             // NOTE TO SELF; MIGHT BE BETTEER TO WRITE ALGO THAT WRITES BOLLINGER IN CSV FLE INSTEAD
             if(isUpper)
-                for (int i = candleSize; i < _stock._priceData.Count; i += candleSize)
+                for (int i = candleSize; i < SelectedStock.PriceData.Count; i += candleSize)
                 {
                     sum = 0;
                     for (int j = 0; j < candleSize; j++)
                     {
-                        sum += _stock._priceData[i-j].UpperBollinger;
+                        sum += SelectedStock.PriceData[i-j].UpperBollinger;
                     }
                     averageInCandle = sum / candleSize;
-                    BollingerSeries.Append(_stock._priceData[i].Date, averageInCandle);
+                    BollingerSeries.Append(SelectedStock.PriceData[i].Date, averageInCandle);
                 }
             else
-            {
-                for (int i = candleSize; i < _stock._priceData.Count; i += candleSize)
+                for (int i = candleSize; i < SelectedStock.PriceData.Count; i += candleSize)
                 {
                     sum = 0;
                     for (int j = 0; j < candleSize; j++)
                     {
-                        sum += _stock._priceData[i - j].LowerBollinger;
+                        sum += SelectedStock.PriceData[i - j].LowerBollinger;
                     }
                     averageInCandle = sum / candleSize;
-                    BollingerSeries.Append(_stock._priceData[i].Date, averageInCandle);
+                    BollingerSeries.Append(SelectedStock.PriceData[i].Date, averageInCandle);
 
                 }
-            }
-
-
+ 
             return BollingerSeries;
 
         }
@@ -147,26 +93,52 @@ namespace Backtesting
             }
         }
 
-        public (DateTime, double) GetNextDayData()
+        public (DateTime, double) GetNextDayDataBollinger(int dayIndex, bool isUpper)
         {
             (DateTime, double) data = (DateTime.Now, 0);
-            if (index < _stock._priceData.Count)
-            {
-            
-                data = (_stock._priceData[index].Date, _stock._priceData[index].ClosingPrice);
-                index++;
+            if (isUpper)
+                data = (SelectedStock.PriceData[dayIndex].Date, SelectedStock.PriceData[dayIndex].UpperBollinger);
+            else
+                data = (SelectedStock.PriceData[dayIndex].Date, SelectedStock.PriceData[dayIndex].LowerBollinger);
 
-            }
-            
             return data;
         }
 
-        internal bool isIndexMax()
+        public (DateTime, OhlcPoint) GetNextDayDataCandle(int dayIndex, int candleSize)
         {
-            return index == _stock._priceData.Count;
+            double highest;
+            double lowest;
+            double starting;
+            double closing;
+            (DateTime, OhlcPoint) data;
+
+            //Case where last candle amount isnt divisible 
+            if(dayIndex + candleSize >= SelectedStock.PriceData.Count)
+                candleSize = SelectedStock.PriceData.Count - dayIndex;
+
+            highest = 0;
+            lowest = 1500000;
+            starting = SelectedStock.PriceData[dayIndex].ClosingPrice;
+
+            for (int i = 0; i < candleSize; i++)
+            {
+
+                if (SelectedStock.PriceData[dayIndex + i].ClosingPrice > highest)
+                    highest = SelectedStock.PriceData[dayIndex + i].ClosingPrice;
+                if (SelectedStock.PriceData[dayIndex + i].ClosingPrice < lowest)
+                    lowest = SelectedStock.PriceData[dayIndex + i].ClosingPrice;
+
+            }
+
+            closing = SelectedStock.PriceData[dayIndex + candleSize - 1].ClosingPrice;
+            data.Item1 = SelectedStock.PriceData[dayIndex + candleSize - 1].Date;
+            data.Item2 = new OhlcPoint(starting, highest, lowest, closing);
+
+            return data;
+
         }
 
-        private int index;
+
         #region Livechart Stuff
         //public SeriesCollection CreateCartesian()
         //{

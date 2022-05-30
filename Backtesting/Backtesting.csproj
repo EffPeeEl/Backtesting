@@ -116,6 +116,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="TradeAlgos\BuyOnBollingerAlgo.cs" />
     <Compile Include="Views\CorrelationMatrixWindow.xaml.cs">
       <DependentUpon>CorrelationMatrixWindow.xaml</DependentUpon>
     </Compile>

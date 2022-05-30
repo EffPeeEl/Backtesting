@@ -24,6 +24,8 @@ namespace Backtesting
         {
             CorrMatrixStock = _stock;
 
+            
+
             InitializeComponent();
         }
 
