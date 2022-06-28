@@ -48,6 +48,9 @@ namespace Backtesting.TradeAlgos
 
         public abstract void Buy(int index, int howMany);
         public abstract void Sell(int index, int howMany);
+
+        public abstract void SellAll();
+
         public abstract void Run();
         public abstract string Run(int index);
 

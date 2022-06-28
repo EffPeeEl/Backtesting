@@ -17,6 +17,8 @@ namespace Backtesting
         public List<PriceData> PriceData;
         private string _filePath;
 
+        public List<FinancialData> Financials;
+
         
         
         public Stock(string fileName)

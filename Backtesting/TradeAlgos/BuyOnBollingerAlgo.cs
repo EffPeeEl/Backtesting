@@ -29,13 +29,15 @@ namespace Backtesting.TradeAlgos
 
             Score = 0;
 
+            
 
         }
 
         public override string Run(int index)
         {
+            
 
-            AlgoSelectedStock.CreateBollingerValues(StDevs, SMADays);
+
             if (AlgoSelectedStock.PriceData[index].ClosingPrice < AlgoSelectedStock.PriceData[index].LowerBollinger)
             {
 
@@ -49,10 +51,9 @@ namespace Backtesting.TradeAlgos
                 && Buys.Count > 0)
             {
                 int BC = Buys.Count;
-                foreach(PriceData pd in Buys)
-                {
-                    Sell(index, BC);
-                }
+
+                Sell(index, BC);
+
                 Buys.Clear();
 
                 return $"[{AlgoSelectedStock.PriceData[index].Date}] Sold {BC}x for { BC * AlgoSelectedStock.PriceData[index].ClosingPrice }"; 
@@ -62,12 +63,10 @@ namespace Backtesting.TradeAlgos
 
         public override void Run()
         {
-            
+            AlgoSelectedStock.CreateBollingerValues(StDevs, SMADays);
             for (int i = 0; i < AlgoSelectedStock.PriceData.Count; i++)
             {
-                if (AlgoSelectedStock.PriceData[i].ClosingPrice < AlgoSelectedStock.PriceData[i].LowerBollinger)
-                    Buys.Add(AlgoSelectedStock.PriceData[i]);
-
+                Run(i);
             }
         }
 
@@ -96,9 +95,13 @@ namespace Backtesting.TradeAlgos
 
         }
 
-        
 
-        
+        public override void SellAll()
+        {
+
+            Sell(AlgoSelectedStock.PriceData.Count - 1, Buys.Count);
+        }
+
 
     }
 }

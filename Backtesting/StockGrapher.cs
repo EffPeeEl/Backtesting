@@ -113,7 +113,7 @@ namespace Backtesting
             (DateTime, OhlcPoint) data;
 
             //Case where last candle amount isnt divisible 
-            if(dayIndex + candleSize >= SelectedStock.PriceData.Count)
+             if(dayIndex + candleSize >= SelectedStock.PriceData.Count)
                 candleSize = SelectedStock.PriceData.Count - dayIndex;
 
             highest = 0;

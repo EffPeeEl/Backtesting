@@ -20,10 +20,20 @@ namespace Backtesting
             CandleSizeDays = 5;
             
 
+            RangeLowerAvgDays = 5;
+            RangeUpperAvgDays = 50;
+            IncrementDays = 1;
+
+            RangeLowerStDevs = 1;
+            RangeUpperStDevs = 3;
+            IncrementStDevs = 0.1;
+
         }
 
         private string ConfigLocation;
         private string StockDataPath;
+
+
 
         public string TypeOfChart { get; private set; }
 
@@ -72,6 +82,118 @@ namespace Backtesting
 
 
 
+        private int _rangeLowerAvgDays;
+        public int RangeLowerAvgDays
+        {
+            get { return _rangeLowerAvgDays; }
+            set
+            {
+                if (_rangeLowerAvgDays != value)
+                {
+                    _rangeLowerAvgDays = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _rangeUpperAvgDays;
+        public int RangeUpperAvgDays
+        {
+            get { return _rangeUpperAvgDays; }
+            set
+            {
+                if (_rangeUpperAvgDays != value)
+                {
+                    _rangeUpperAvgDays = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _incrementDays;
+        public int IncrementDays
+        {
+            get { return _incrementDays; }
+            set
+            {
+                if (_incrementDays != value)
+                {
+                    _incrementDays = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private double _rangeLowerStDevs;
+        public double RangeLowerStDevs
+        {
+            get { return _rangeLowerStDevs; }
+            set
+            {
+                if (_rangeLowerStDevs != value)
+                {
+                    _rangeLowerStDevs = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _rangeUpperStDevs;
+        public double RangeUpperStDevs
+        {
+            get { return _rangeUpperStDevs; }
+            set
+            {
+                if (_rangeUpperStDevs != value)
+                {
+                    _rangeUpperStDevs = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _incrementStDevs;
+        public double IncrementStDevs
+        {
+            get { return _incrementStDevs; }
+            set
+            {
+                if (_incrementStDevs != value)
+                {
+                    _incrementStDevs = value;
+                    updateRangeString();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private void updateRangeString()
+        {
+            AlgoRangeString = $"Simulate for RANGE [{RangeLowerStDevs}:{RangeUpperStDevs} + {IncrementStDevs}] - [{RangeLowerAvgDays}:{RangeUpperAvgDays} + {IncrementDays}]";
+        }
+
+        private string _algoRangeString;
+        public string AlgoRangeString
+        {
+            get
+            {
+                return _algoRangeString;
+            }
+            set
+            {
+                if (_algoRangeString != value)
+                {
+                    _algoRangeString = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
 
         public void ChangeStockDataLocation(string newPath)
@@ -86,5 +208,20 @@ namespace Backtesting
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        internal void Reset()
+        {
+            BollingerStDevs = 2;
+            BollingerAvgDays = 20;
+            CandleSizeDays = 5;
+
+
+            RangeLowerAvgDays = 5;
+            RangeUpperAvgDays = 50;
+            IncrementDays = 1;
+
+            RangeLowerStDevs = 1;
+            RangeUpperStDevs = 3;
+            IncrementStDevs = 0.1;
+        }
     }
 }

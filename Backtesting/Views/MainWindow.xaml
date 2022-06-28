@@ -112,7 +112,7 @@
         
         <Grid x:Name="AllDashboards" Grid.Row="1" Grid.Column="1">
             
-            <Grid x:Name="StockGrid" Grid.Row="1" Grid.Column="1" >
+            <Grid x:Name="StockGrid" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -133,6 +133,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
 
                 <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Background="Green" Margin="0,0,0,0" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto">
@@ -146,7 +147,7 @@
                 <s:SciChartSurface x:Name="Surface" 
                                    Grid.Row="0" Grid.Column="1" 
                                    Grid.ColumnSpan="6" 
-                                   Grid.RowSpan="4" >
+                                   Grid.RowSpan="6" >
 
                     <s:SciChartSurface.RenderableSeries
                         
@@ -216,17 +217,17 @@
 
 
                 <Button
-                    Grid.Column="1"
+                    Grid.Column="0"
                     Grid.Row="9"
                     x:Name="CorrelationButton"
                     Click="CorrelationButton_Click"
                     Content="Correleation Matrix"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="1"
                     />
                 
 
                 <StackPanel Grid.Column="5"
-                            Grid.Row="6"
+                            Grid.Row="5"
                             Grid.ColumnSpan="2">
                     <ComboBox ItemsSource="{Binding Path=TradeAlgoList}" x:Name="AlgoListBox">
 
@@ -252,7 +253,16 @@
                                 />
 
                     </Grid>
+                    <Button x:Name="SimulationAllButton"
+                            Content="{Binding Path=Settings.AlgoRangeString}"
+                            Click="GenerateManyAlgos"
+                            Grid.Column="0"
+                            Height="35"
+                            Background="Orange"
+                                />
                     
+                   
+
                 </StackPanel>
 
 
@@ -271,6 +281,7 @@
                         Text="{Binding Path=LogString}"
                         
                     />
+                    
                 </ScrollViewer>
                 <TextBlock
                     Grid.Row="4"
@@ -288,13 +299,29 @@
                     Margin="5,15,0,0"
                     Text="{Binding Path=tempAlgo.Score}"
                     >
-                    
                 </TextBlock>
+                <ScrollViewer 
+                    Grid.Row="0"
+                    Grid.RowSpan="4"
+                    Grid.Column="7"
+                    Grid.ColumnSpan="2"
+                    Margin="5,0,0,0"
+                    
+                    >
+                    <TextBlock
+                        x:Name="AlgoSortedLog"
+                        FontFamily="Cascadia Code"
+                        FontSize="12"
+                        Text="{Binding Path=LogString}"
+                        
+                    />
+
+                </ScrollViewer>
 
 
             </Grid>
 
-            <Grid x:Name="SettingsGrid" Grid.Row="0" Grid.Column="1" Visibility="Collapsed">
+            <Grid x:Name="SettingsGrid" Grid.Row="0" Grid.Column="1" Visibility="Visible">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
 
@@ -313,41 +340,48 @@
 
                 <TextBlock Text="Settings" FontSize="32" FontWeight="SemiBold"/>
 
-                <Grid x:Name="SettingsForm" Grid.Column="1" Grid.Row="0" Grid.RowSpan="100" Grid.ColumnSpan="1">
-                    <Grid.Resources>
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.RowSpan="100"
+                    Grid.Column="1"
+                    VerticalAlignment="Stretch"
+                    
+                    
+                    >
+                    <StackPanel.Resources>
+                    
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Height" Value="60"/>
+                            <Setter Property="Width" Value="100" />
+                            <Setter Property="Margin" Value="0,10,0,0"/>
+                        </Style>
+                        
                         <Style TargetType="{x:Type CheckBox}">
                             <Setter Property="IsEnabled" Value="{Binding Path = IsNotActiveSimulationRun}"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0,10,0,0"/>
                         </Style>
+
                         <Style TargetType="{x:Type TextBox}">
                             <Setter Property="IsEnabled" Value="{Binding Path = IsNotActiveSimulationRun}"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                            <Setter Property="Width" Value="25"/>
+                            <Setter Property="Height" Value="23"/>
+
                         </Style>
+
+                        <Style TargetType="{x:Type DockPanel}">
+                            <Setter Property="Margin" Value="0,10,0,0"/>
+
+
+                        </Style>
+
                         <Style TargetType="{x:Type Slider}">
                             <Setter Property="IsEnabled" Value="{Binding Path = IsNotActiveSimulationRun}"/>
+
                         </Style>
-                    </Grid.Resources>
-    
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="30"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="30"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="30"/>
-
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="100"/>
-                        <RowDefinition Height="100"/>
-                        
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="40"/>
-
-                    </Grid.RowDefinitions>
+                    
+                    </StackPanel.Resources>
 
                     <TextBlock 
                         Text="{Binding Path=disabledText}"
@@ -358,25 +392,115 @@
                         Foreground="Red"
                         />
 
+                    <DockPanel>
+                        <CheckBox x:Name="barChartCheckBox"/>
+                        <Image Source="/Resources\barchartPic.PNG"/>
+                    </DockPanel>
 
-                    <CheckBox VerticalAlignment="Center" Grid.Row="0" x:Name="barChartCheckBox"/>
-                    <Image Grid.Column="1" Grid.ColumnSpan="3"  Source="/Resources\barchartPic.PNG"/>
-                    <CheckBox VerticalAlignment="Center" Grid.Row="1" x:Name="lineChartCheckBox"/>
-                    <Image Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Source="/Resources\linechartPic.PNG"/>
+                    <DockPanel>
+                        <CheckBox x:Name="lineChartCheckBox"/>
+                        <Image Source="/Resources\linechartPic.PNG"/>
+                    </DockPanel>
 
-                    <TextBox Grid.Row="2" Grid.Column="2"  TextAlignment="Center" BorderThickness="1" MaxLength="2"  Text="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
 
-                    <Slider Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="1" Maximum="50" Margin="0,5" Value="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
 
-                    <TextBlock Grid.Row="4" Grid.ColumnSpan="4" Text="Standard deviations from moving average:"/>
-                    <TextBox Grid.Row="4" Grid.Column="4" TextAlignment="Center" BorderThickness="1" Text="{Binding Path=Settings.BollingerStDevs, Mode=TwoWay}"/>
-                    <TextBlock Grid.Row="5" Grid.ColumnSpan="4" Text="Moving average days:"/>
-                    <TextBox Grid.Row="5" Grid.Column="4" TextAlignment="Center" BorderThickness="1" Text="{Binding Path=Settings.BollingerAvgDays, Mode=TwoWay}"/>
-                    <Button x:Name="DefaultSettingsButton" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="10" Margin="0,10,0,0" Click="DefaultSettingsButton_Click" Content="Set Default"/>
+                    <TextBox BorderThickness="1" MaxLength="2" Text="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
+                    <Slider Maximum="50" Margin="0,5" Value="{Binding Path=Settings.CandleSizeDays, Mode=TwoWay}"/>
 
-                </Grid>
-                
-                
+                    <DockPanel>
+                        <TextBlock Text="Standard deviations from moving average:"/>
+                        <TextBox HorizontalAlignment="Right" BorderThickness="1" Text="{Binding Path=Settings.BollingerStDevs, Mode=TwoWay}"/>
+                    </DockPanel>
+
+                    <DockPanel>
+                        <TextBlock Text="Moving average days:"/>
+                        <TextBox HorizontalAlignment="Right" BorderThickness="1" Text="{Binding Path=Settings.BollingerAvgDays, Mode=TwoWay}"/>
+                    </DockPanel>
+
+
+
+                    <StackPanel x:Name="BollingerSettingsPanel" Background="Orange">
+
+                        <TextBlock
+                            Text="For Bollinger Algorithms"
+                            HorizontalAlignment="Center"
+                            FontWeight="Bold"
+                            />
+                        <TextBlock
+                            Text="Range of days --- Range of Deviations"
+                            HorizontalAlignment="Center"
+                            />
+                        <DockPanel 
+                        Grid.Column="0"
+                        Grid.ColumnSpan="5"
+                        Grid.Row="6"
+                        HorizontalAlignment="Center"
+                        >
+                            <DockPanel.Resources>
+                                <Style TargetType="{x:Type TextBox }">
+
+                                    <Setter 
+                                    Property="Width"
+                                    Value="25"
+                                    
+                                        />
+                                </Style>
+                            </DockPanel.Resources>
+
+                            <TextBox
+                            x:Name="RangeBoxLowDay"
+                            Text="{Binding Path= Settings.RangeLowerAvgDays, Mode=TwoWay}"
+                                
+                            />
+
+                            <TextBlock
+                            Text="->"
+                            />
+
+                            <TextBox
+                            x:Name="RangeBoxUpDay"
+                            Text="{Binding Path= Settings.RangeUpperAvgDays, Mode=TwoWay}"
+                                Margin="0,0,35,0"
+                            />
+
+                            
+
+                            <TextBox
+                            x:Name="RangeBoxLowDev"
+                            Text="{Binding Path= Settings.RangeLowerStDevs, Mode=TwoWay}"
+                            />
+
+                            <TextBlock
+                            Text="->"
+                            />
+                            <TextBox
+                            x:Name="RangeBoxUpDev"
+                            Text="{Binding Path= Settings.RangeUpperStDevs, Mode=TwoWay}"
+                            />
+
+
+                        </DockPanel>
+                        <TextBlock HorizontalAlignment="Center">Increment by:</TextBlock>
+                        <DockPanel HorizontalAlignment="Center">
+                            <TextBox
+                            x:Name="IncrementStDevTextBox"
+                            Text="{Binding Path= Settings.IncrementDays, Mode=TwoWay}"
+                                Margin="0,0,25,0"
+                            /> 
+                            <TextBox
+                            x:Name="IncrementDaysTextBox"
+                            Text="{Binding Path= Settings.IncrementStDevs, Mode=TwoWay}"
+                            />
+                        </DockPanel>
+                    </StackPanel>
+                    
+                    
+
+
+                </StackPanel >
+
+                <Button Grid.Row="8" Grid.Column="1" x:Name="DefaultSettingsButton" Margin="0,10,0,0" Click="DefaultSettingsButton_Click" Content="Set Default" VerticalAlignment="Bottom"/>
+
 
 
             </Grid>

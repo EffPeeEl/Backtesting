@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -128,6 +129,9 @@ namespace Backtesting
         {
             TradeAlgoList = new List<TradeAlgo>();
             TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays));
+            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Correlation With Gold" });
+            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Correlation With Silver" });
+            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Fiscal number aassc" });
         }
 
 
@@ -237,7 +241,7 @@ namespace Backtesting
         }
 
         private TradeAlgo _tempAlgo;
-        public TradeAlgo tempAlgo
+        public TradeAlgo SelectedAlgo
         {
             get { return _tempAlgo; }
             set
@@ -258,18 +262,19 @@ namespace Backtesting
 
         private void ThreadSimulation()
         {
-            LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
-            UpperBollingerBandSeries = new XyDataSeries<DateTime, double>();
-            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
+            LowerBollingerBandSeries.Clear();
+            UpperBollingerBandSeries.Clear();
+            CandleDataSeries.Clear();
             isActiveSimulationRun = true;
 
-            tempAlgo = TradeAlgoList[AlgoListBox.SelectedIndex];
+            SelectedAlgo = TradeAlgoList[AlgoListBox.SelectedIndex];
 
             /// HAS to be on different thread or it data wont render until function has returned. 
             new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-
+                stockGrapher.SelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
+                SelectedAlgo.AlgoSelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
 
                 for (int i = 0; i < Math.Ceiling((double)stockGrapher.SelectedStock.PriceData.Count / Settings.CandleSizeDays); i++)
                 {
@@ -281,9 +286,7 @@ namespace Backtesting
                         if (i * Settings.CandleSizeDays + j >= stockGrapher.SelectedStock.PriceData.Count)
                             break;
 
-                        string returned = tempAlgo.Run(i*Settings.CandleSizeDays + j);
-
-
+                        string returned = SelectedAlgo.Run(i*Settings.CandleSizeDays + j);
 
                         Application.Current.Dispatcher.Invoke((Action)delegate {
 
@@ -292,13 +295,9 @@ namespace Backtesting
                                 CandleStickRenderableSeries.PointMarker = new EllipsePointMarker() { Width = 50, Height = 50, StrokeThickness = 10 };
                                 LogString = returned + "\n" + LogString ;
                             }
-
-
                         });
 
-                       
                     }
-
                     var candleData = stockGrapher.GetNextDayDataCandle(CandleDataSeries.Count * Settings.CandleSizeDays, Settings.CandleSizeDays);
                     var lowerLineData = stockGrapher.GetNextDayDataBollinger(LowerBollingerBandSeries.Count * Settings.CandleSizeDays, false);
                     var upperLineData = stockGrapher.GetNextDayDataBollinger(UpperBollingerBandSeries.Count * Settings.CandleSizeDays, true);
@@ -308,15 +307,13 @@ namespace Backtesting
                         CandleDataSeries.Append(candleData.Item1, candleData.Item2.Open, candleData.Item2.High, candleData.Item2.Low, candleData.Item2.Close);
                         LowerBollingerBandSeries.Append(lowerLineData.Item1, lowerLineData.Item2);
                         UpperBollingerBandSeries.Append(upperLineData.Item1, upperLineData.Item2);
-
-                        
-
                         
                     }
                     Thread.Sleep(15);
 
                 }
-                tempAlgo.CalculateFinalScore();
+                SelectedAlgo.SellAll();
+                SelectedAlgo.CalculateFinalScore();
 
                 isActiveSimulationRun = false;
 
@@ -324,13 +321,47 @@ namespace Backtesting
         }
 
 
+        public void GenerateManyAlgos(object sender, RoutedEventArgs e)
+        {
+
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+
+
+                for (double i = Settings.RangeLowerStDevs; i < Settings.RangeUpperStDevs; i += Settings.IncrementStDevs)
+                {
+                    for (int j = Settings.RangeLowerAvgDays; j < Settings.RangeUpperAvgDays; j += Settings.IncrementDays)
+                    {
+                        Application.Current.Dispatcher.Invoke((Action)delegate {
+                            TradeAlgoList.Add(new BuyOnBollingerAlgo(i, j) { AlgoSelectedStock = new Stock("AAK-2012-01-01-2022-04-06.csv") });
+                            TradeAlgoList[TradeAlgoList.Count - 1].Run();
+                            LogString = $"Algo: {TradeAlgoList[TradeAlgoList.Count - 1]}: {TradeAlgoList[TradeAlgoList.Count - 1].Score} " +
+                                $"\n{LogString}";
+
+                            Thread.Sleep(20);
+
+                        });
+                    }
+                }
+
+
+            }).Start();
+
+
+
+            
+
+        }
+        public string SelectedStockUID;
+
         private void ButtonCreatedByCode_Click(object sender, RoutedEventArgs e)
         {
 
-            string senderUID = ((FrameworkElement)sender).Uid;
+            SelectedStockUID = ((FrameworkElement)sender).Uid;
 
-            stockGrapher = new StockGrapher(senderUID);
-            TradeAlgoList[0].AlgoSelectedStock = new Stock(senderUID);
+            stockGrapher = new StockGrapher(SelectedStockUID);
+            TradeAlgoList[0].AlgoSelectedStock = new Stock(SelectedStockUID);
 
 
             if (rSeriesXAxis != null)
@@ -340,21 +371,10 @@ namespace Backtesting
                 rSeriesYAxis.VisibleRange = null;
             }
 
-            //for (int i = 0; i < x.Count; i++)
-            //{
-            //    if (x.XValues[i] == y.XValues[i])
-            //    {
-            //        Trace.WriteLine("TRUE");
-            //    }
-            //    else
-            ////        Trace.WriteLine($"false at X:{x.XValues[i]} and Y: {y.YValues[i]} ");
-            //}
 
-            CandleDataSeries = stockGrapher.CreateGraphSci(senderUID, "Candle", Settings.CandleSizeDays);
+            CandleDataSeries = stockGrapher.CreateGraphSci(SelectedStockUID, "Candle", Settings.CandleSizeDays);
             UpperBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, true, Settings.BollingerStDevs, Settings.BollingerAvgDays);
             LowerBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, false, Settings.BollingerStDevs, Settings.BollingerAvgDays);
-
-            
 
         }
 
@@ -410,7 +430,7 @@ namespace Backtesting
 
         private void DefaultSettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            Settings = new SettingClass();
+            Settings.Reset();
         }
 
 
