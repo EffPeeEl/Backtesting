@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Backtesting.TradeAlgos
 {
-    class BuyOnBollingerAlgo : TradeAlgo
+    class BuyOnBollingerAlgo : TradeAlgorithm
     {
 
-        private int SMADays;
-        private double StDevs;
+        private int SimpleMovingAverageDays;
+        private double StDevsFromAverage;
 
 
 
@@ -18,14 +18,12 @@ namespace Backtesting.TradeAlgos
         {
             AlgoName = $"Buy/Sell on Bollinger [{_StDevs} - {_SMAdays}]";
 
-            StDevs = _StDevs;
-            SMADays = _SMAdays;
+            
+            SimpleMovingAverageDays = _SMAdays;
+            StDevsFromAverage = _StDevs;
 
             Buys = new List<PriceData>();
-            HistoricBuys = new List<PriceData>();
-
             Sells = new List<PriceData>();
-            HistoricSells = new List<PriceData>();
 
             Score = 0;
 
@@ -33,73 +31,19 @@ namespace Backtesting.TradeAlgos
 
         }
 
-        public override string Run(int index)
+        public override double RunAlgorithm(Stock stock)
         {
-            
-
-
-            if (AlgoSelectedStock.PriceData[index].ClosingPrice < AlgoSelectedStock.PriceData[index].LowerBollinger)
-            {
-
-                Buy(index, 1);
-                
-                return $"[{ Buys[Buys.Count - 1].Date}] Bought for { Buys[Buys.Count - 1].ClosingPrice}";
-            }
-
-
-            if (AlgoSelectedStock.PriceData[index].ClosingPrice > AlgoSelectedStock.PriceData[index].UpperBollinger
-                && Buys.Count > 0)
-            {
-                int BC = Buys.Count;
-
-                Sell(index, BC);
-
-                Buys.Clear();
-
-                return $"[{AlgoSelectedStock.PriceData[index].Date}] Sold {BC}x for { BC * AlgoSelectedStock.PriceData[index].ClosingPrice }"; 
-            }
-            return "";
+            return RunAlgorithm(stock, stock.PriceData[0].Date, stock.PriceData[stock.PriceData.Count - 1].Date);
         }
 
-        public override void Run()
+        public override double RunAlgorithm(Stock stock, DateTime startDate)
         {
-            AlgoSelectedStock.CreateBollingerValues(StDevs, SMADays);
-            for (int i = 0; i < AlgoSelectedStock.PriceData.Count; i++)
-            {
-                Run(i);
-            }
+            return RunAlgorithm(stock, startDate, stock.PriceData[stock.PriceData.Count - 1].Date);
         }
 
-
-
-        public override void Buy(int index, int howMany)
+        public override double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate)
         {
-            for (int i = 0; i < howMany; i++)
-            {
-                Buys.Add(AlgoSelectedStock.PriceData[index]);
-                HistoricBuys.Add(AlgoSelectedStock.PriceData[index]);
-                Score -= AlgoSelectedStock.PriceData[index].ClosingPrice;
-            }
-            
-
-        }
-
-        public override void Sell(int index, int howMany)
-        {
-            for (int i = 0; i < howMany; i++)
-            {
-                Sells.Add(AlgoSelectedStock.PriceData[index]);
-                HistoricSells.Add(AlgoSelectedStock.PriceData[index]);
-                Score += AlgoSelectedStock.PriceData[index].ClosingPrice;
-            }
-
-        }
-
-
-        public override void SellAll()
-        {
-
-            Sell(AlgoSelectedStock.PriceData.Count - 1, Buys.Count);
+            return Score;
         }
 
 

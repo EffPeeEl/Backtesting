@@ -1,4 +1,5 @@
 ﻿using Backtesting.TradeAlgos;
+using LiveCharts;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Visuals;
 using SciChart.Charting.Visuals.PointMarkers;
@@ -30,7 +31,7 @@ namespace Backtesting
 
 
 
-        public StockGrapher stockGrapher;
+        public SciChartStockGrapher stockGrapher;
 
 
         private SettingClass _settings;
@@ -47,8 +48,9 @@ namespace Backtesting
             }
         }
 
-        private List<TradeAlgo> _tradeAlgoList;
-        public List<TradeAlgo> TradeAlgoList
+        
+        private List<TradeAlgorithm> _tradeAlgoList;
+        public List<TradeAlgorithm> TradeAlgoList
         {
             get { return _tradeAlgoList; }
             set
@@ -111,8 +113,7 @@ namespace Backtesting
         {
             DataContext = this;
             Settings = new SettingClass();
-            isActiveSimulationRun = false;
-            IsNotActiveSimulationRun = true;
+
             
 
             ActivateSciChartLicense();
@@ -122,16 +123,34 @@ namespace Backtesting
 
             CreateStockPanel();
 
+            
+
+            
+
+
         }
+        private SeriesCollection _sc;
+        public SeriesCollection SC
+        {
+            get { return _sc; }
+            set
+            {
+                if (_sc != value)
+                {
+                    _sc = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         //Creates object for all trading 
         public void InitializeAlgos()
         {
-            TradeAlgoList = new List<TradeAlgo>();
-            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays));
-            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Correlation With Gold" });
-            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Correlation With Silver" });
-            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays) { AlgoName = "Fiscal number aassc" });
+            TradeAlgoList = new List<TradeAlgorithm>();
+
+
+
         }
 
 
@@ -154,8 +173,6 @@ namespace Backtesting
         }
 
        
-
-        public bool isSimulationOn;
 
         private string _logString;
         public string LogString
@@ -185,196 +202,16 @@ namespace Backtesting
             }
         }
 
-        private bool _isActiveSimulationRun;
-        public bool isActiveSimulationRun
-        {
-            get { return _isActiveSimulationRun; }
-            set
-            {
-                if (_isActiveSimulationRun != value)
-                {
-                    _isActiveSimulationRun = value;
-                    IsNotActiveSimulationRun = !_isActiveSimulationRun;
-
-                    if(value)
-                        disabledText = "Unable to change settings while simulation is running";
-                    else
-                        disabledText = "";
-
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        //XAML cant inverse bools so this is the spaghettiest option since Control.Setters in Settings-Tab is needs to EnableBind to a bool
-        private bool _IsNotActiveSimulationRun;
-        public bool IsNotActiveSimulationRun
-        {
-            get { return _IsNotActiveSimulationRun; }
-            set
-            {
-                if (_IsNotActiveSimulationRun != value)
-                {
-                    _IsNotActiveSimulationRun = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private void RunSimulation(object sender, RoutedEventArgs e)
-        {
-
-            if (rSeriesXAxis != null)
-            {
-                //Axis stays att first one if this step isnt done for some reason
-                rSeriesXAxis.VisibleRange = null;
-                rSeriesYAxis.VisibleRange = null;
-            }
-
-            isSimulationOn = true;
-            
-            if (!isActiveSimulationRun)
-            {
-                ThreadSimulation();
-            }
-
-        }
-
-        private TradeAlgo _tempAlgo;
-        public TradeAlgo SelectedAlgo
-        {
-            get { return _tempAlgo; }
-            set
-            {
-                if (_tempAlgo != value)
-                {
-                    _tempAlgo = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
 
-        private void StopSimulationButton_Click(object sender, RoutedEventArgs e)
-        {
-            isSimulationOn = false;
-        }
-
-        private void ThreadSimulation()
-        {
-            LowerBollingerBandSeries.Clear();
-            UpperBollingerBandSeries.Clear();
-            CandleDataSeries.Clear();
-            isActiveSimulationRun = true;
-
-            SelectedAlgo = TradeAlgoList[AlgoListBox.SelectedIndex];
-
-            /// HAS to be on different thread or it data wont render until function has returned. 
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                stockGrapher.SelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
-                SelectedAlgo.AlgoSelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
-
-                for (int i = 0; i < Math.Ceiling((double)stockGrapher.SelectedStock.PriceData.Count / Settings.CandleSizeDays); i++)
-                {
-                    //In order to pause Simulation with button
-                    while (!isSimulationOn) ;
-
-                    for (int j = 0; j < Settings.CandleSizeDays; j++)
-                    {
-                        if (i * Settings.CandleSizeDays + j >= stockGrapher.SelectedStock.PriceData.Count)
-                            break;
-
-                        string returned = SelectedAlgo.Run(i*Settings.CandleSizeDays + j);
-
-                        Application.Current.Dispatcher.Invoke((Action)delegate {
-
-                            if (returned != "")
-                            {
-                                CandleStickRenderableSeries.PointMarker = new EllipsePointMarker() { Width = 50, Height = 50, StrokeThickness = 10 };
-                                LogString = returned + "\n" + LogString ;
-                            }
-                        });
-
-                    }
-                    var candleData = stockGrapher.GetNextDayDataCandle(CandleDataSeries.Count * Settings.CandleSizeDays, Settings.CandleSizeDays);
-                    var lowerLineData = stockGrapher.GetNextDayDataBollinger(LowerBollingerBandSeries.Count * Settings.CandleSizeDays, false);
-                    var upperLineData = stockGrapher.GetNextDayDataBollinger(UpperBollingerBandSeries.Count * Settings.CandleSizeDays, true);
-
-                    using (CandleDataSeries.SuspendUpdates())
-                    {
-                        CandleDataSeries.Append(candleData.Item1, candleData.Item2.Open, candleData.Item2.High, candleData.Item2.Low, candleData.Item2.Close);
-                        LowerBollingerBandSeries.Append(lowerLineData.Item1, lowerLineData.Item2);
-                        UpperBollingerBandSeries.Append(upperLineData.Item1, upperLineData.Item2);
-                        
-                    }
-                    Thread.Sleep(15);
-
-                }
-                SelectedAlgo.SellAll();
-                SelectedAlgo.CalculateFinalScore();
-
-                isActiveSimulationRun = false;
-
-            }).Start();
-        }
-
-
-        public void GenerateManyAlgos(object sender, RoutedEventArgs e)
-        {
-
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-
-
-                for (double i = Settings.RangeLowerStDevs; i < Settings.RangeUpperStDevs; i += Settings.IncrementStDevs)
-                {
-                    for (int j = Settings.RangeLowerAvgDays; j < Settings.RangeUpperAvgDays; j += Settings.IncrementDays)
-                    {
-                        Application.Current.Dispatcher.Invoke((Action)delegate {
-                            TradeAlgoList.Add(new BuyOnBollingerAlgo(i, j) { AlgoSelectedStock = new Stock("AAK-2012-01-01-2022-04-06.csv") });
-                            TradeAlgoList[TradeAlgoList.Count - 1].Run();
-                            LogString = $"Algo: {TradeAlgoList[TradeAlgoList.Count - 1]}: {TradeAlgoList[TradeAlgoList.Count - 1].Score} " +
-                                $"\n{LogString}";
-
-                            Thread.Sleep(20);
-
-                        });
-                    }
-                }
-
-
-            }).Start();
-
-
-
-            
-
-        }
         public string SelectedStockUID;
 
         private void ButtonCreatedByCode_Click(object sender, RoutedEventArgs e)
         {
+            LvChartGrapher Grapher = new LvChartGrapher();
+            var x = (Button)sender;
 
-            SelectedStockUID = ((FrameworkElement)sender).Uid;
-
-            stockGrapher = new StockGrapher(SelectedStockUID);
-            TradeAlgoList[0].AlgoSelectedStock = new Stock(SelectedStockUID);
-
-
-            if (rSeriesXAxis != null)
-            {
-                //Axis stays att first one if this step isnt done for some reason
-                rSeriesXAxis.VisibleRange = null;
-                rSeriesYAxis.VisibleRange = null;
-            }
-
-
-            CandleDataSeries = stockGrapher.CreateGraphSci(SelectedStockUID, "Candle", Settings.CandleSizeDays);
-            UpperBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, true, Settings.BollingerStDevs, Settings.BollingerAvgDays);
-            LowerBollingerBandSeries = stockGrapher.CreateBollingerSci(Settings.CandleSizeDays, false, Settings.BollingerStDevs, Settings.BollingerAvgDays);
+            SC = Grapher.CreateChart(new Stock(x.Uid));
 
         }
 
@@ -436,9 +273,7 @@ namespace Backtesting
 
         private void ActivateSciChartLicense()
         {
-            // Set this code once in App.xaml.cs or application startup
-            SciChartSurface.SetRuntimeLicenseKey("usEKPqPHWbWjbdDc6gtx/Id8l0CVAclKElC/4pw347GRLeeVN5X/Zb/Wk4u89+jiVXh13m3QjvsKlWLnJw3FlzX0ab133kzE3KbrpkvJivAq6KwjbjH93gh5uig96kVpi8/q46EssYS/+d4PpLL7Vfv1FiAD16F/nY4MbrEPNNv7V59Rn3p59DEgMdYAA1Diuv6fZ01ae2mAwfSbkJczKlugwVqfgVReObtGwvVH6HzdCsfklrYuIDTAyBlfM0cHia/piNXcxhvU6UyWP39LUjlXd3XR1u4t6NsjrqZjwaf98jyE6xCIB9SffOOnXFKzYl1NMBBK3P+7beNqpGzLqZVGb2qxW6guD8UHfuILufnq6x5qbu/E8QgrlzY5+gow0h9NfYCuldy5oOqQ/f5vSSPE+Xl9sW5F3QRJ994K0dn0P+FV7FBCoawRyee8/XaAxqZOZfoU6AEb+8jJUdYQBtjEuOUF8ctIay8tThVp4L4S6ivyrMl5m2w1dtA1Rv6lV5qQpPybnCf7+tBl0h4TiFvHv2zLpq2FTf5CdaQIxaF1CKo2amcYPACvfLmFZ62A6VHuUw==");
-
+            // Set this code once in App.xaml.cs or application startupcf73ZvKyIGsdkPvgkVY9Ob4tKzwJqZDu7oAxQatG+oSFQgxqT5I+gy2FRaAUmYswO6XaiNBt410s+mlsapPLfln2ku/xT2eB69Tzq0PRTiePT8f3If2PCRz+EdkBe9d2warxJYeBWMU0NmNjU78odNJMooC8UYF9ByutpbZujRC8MrFHIfi2sHWJzdqWQi9gJUP85OLpwU6kC6E0TbYrMzpwO9nX7Nang3K7LxS/kr+/xeNBW/vDFeqRaMT2xgP2RbYNfXYKJkPLj10Bg57M6yUqjwt+iX+ixKkgw0sK4MzPxeaF75T/avqfuAhVskDQ/fWG6tQryy4Rt3PxXoMZybemuV9ccsEvCgiyHF5IZYan9dy5VAMJKTFDrDEAyR2i9AJS6T620UNa3U0adojXnufJYw0IGt+3ROSzV5pUfTNzM2n7UlNbCdU8jR2lP8dKb8SX+zQKxwKc8mwwUdsCqrrc348nby3MnCgxTxIpgqkPa0s3qvdDV/AQPBPFV/8gHOT+HlejKMpTX/HM36nWUuYNXAIbea+sw8d/FRenlgNckethCmRVSToJw==");
         }
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)

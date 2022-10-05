@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Backtesting.TradeAlgos
 {
-    public abstract class TradeAlgo : INotifyPropertyChanged
+    public abstract class TradeAlgorithm : INotifyPropertyChanged
     {
 
 
@@ -20,12 +20,9 @@ namespace Backtesting.TradeAlgos
         }
 
 
-        public  Stock AlgoSelectedStock { get; set; }
-
         public  List<PriceData> Buys { get; set; }
-        public  List<PriceData> HistoricBuys { get; set; }
         public  List<PriceData> Sells { get; set; }
-        public  List<PriceData> HistoricSells { get; set; }
+
 
         public  string AlgoName { get; set; }
 
@@ -44,17 +41,32 @@ namespace Backtesting.TradeAlgos
         }
 
 
+        private Stock currentStock;
+
+        public abstract double RunAlgorithm(Stock stock);
+        public abstract double RunAlgorithm(Stock stock, DateTime startDate);
+        public abstract double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate);
+
+        private void Buy(int howMany, int dateIndex)
+        {
+            for (int i = 0; i < howMany; i++)
+                Buys.Add(currentStock.PriceData[dateIndex]);
+        }
+        private void Sell(int howMany, int dateIndex)
+        {
+            for (int i = 0; i < howMany; i++)
+                Sells.Add(currentStock.PriceData[dateIndex]);
+        }
+
+        private void SellAll(int dateIndex)
+        {
+            for(int i = 0; i < Buys.Count-Sells.Count; i ++)
+                Sells.Add(currentStock.PriceData[dateIndex]);
+            
+        }
 
 
-        public abstract void Buy(int index, int howMany);
-        public abstract void Sell(int index, int howMany);
-
-        public abstract void SellAll();
-
-        public abstract void Run();
-        public abstract string Run(int index);
-
-        public void Calculate()
+        private void Calculate()
         {
             
             int over = 0;
@@ -66,7 +78,6 @@ namespace Backtesting.TradeAlgos
             foreach (PriceData pd in Sells)
             {
                 Score += pd.ClosingPrice;
-
             }
 
         }
@@ -92,11 +103,11 @@ namespace Backtesting.TradeAlgos
         public void CalculateFinalScore()
         {
             Score = 0;
-            foreach (PriceData pd in HistoricBuys)
+            foreach (PriceData pd in Sells)
             {
                 Score -= pd.ClosingPrice;
             }
-            foreach (PriceData pd in HistoricSells)
+            foreach (PriceData pd in Buys)
             {
                 Score += pd.ClosingPrice;
             }

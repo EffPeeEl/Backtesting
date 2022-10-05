@@ -13,12 +13,12 @@ using SciChart.Charting.Model.DataSeries;
 
 namespace Backtesting
 {
-    public class StockGrapher
+    public class SciChartStockGrapher
     {
         
         public Stock SelectedStock;
 
-        public StockGrapher(string stockUID)
+        public SciChartStockGrapher(string stockUID)
         {
             SelectedStock = new Stock(stockUID);
         }

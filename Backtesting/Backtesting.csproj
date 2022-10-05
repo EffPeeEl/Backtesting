@@ -117,6 +117,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="FinancialData.cs" />
+    <Compile Include="LvChartGrapher.cs" />
     <Compile Include="TradeAlgos\BuyOnBollingerAlgo.cs" />
     <Compile Include="Views\CorrelationMatrixWindow.xaml.cs">
       <DependentUpon>CorrelationMatrixWindow.xaml</DependentUpon>
@@ -125,8 +126,8 @@
     <Compile Include="Stock.cs" />
     <Compile Include="RawPriceData.cs" />
     <Compile Include="PriceData.cs" />
-    <Compile Include="StockGrapher.cs" />
-    <Compile Include="TradeAlgos\TradeAlgo.cs" />
+    <Compile Include="SciChartStockGrapher.cs" />
+    <Compile Include="TradeAlgos\TradeAlgorithm.cs" />
     <Page Include="Views\CorrelationMatrixWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
