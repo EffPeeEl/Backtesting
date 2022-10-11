@@ -143,11 +143,28 @@
                 </ScrollViewer>
 
 
-                <lvc:CartesianChart Grid.Column="1" Grid.RowSpan="10" Grid.ColumnSpan="7" Series="{Binding SC}">
-                    <lvc:CartesianChart.AxisX>
-                        <lvc:Axis Labels="{Binding Labels}"/>
-                    </lvc:CartesianChart.AxisX>
-                </lvc:CartesianChart>
+                <s:SciChartSurface x:Name="sciChartSurface" Grid.Column="1" Grid.RowSpan="10" Grid.ColumnSpan="7">
+                    <!--  Create an X Axis  -->
+                    <s:SciChartSurface.XAxis>
+                        <s:NumericAxis AxisTitle="Number of Samples (per Series)"/>
+                    </s:SciChartSurface.XAxis>
+                    <!--  Create a Y Axis  -->
+                    <s:SciChartSurface.YAxis>
+                        <s:NumericAxis AxisTitle="Value"/>
+                    </s:SciChartSurface.YAxis>
+                    <!--  Specify interactivity modifiers  -->
+                    <s:SciChartSurface.ChartModifier>
+                        <s:ModifierGroup>
+                            <s:RubberBandXyZoomModifier />
+                            <s:ZoomExtentsModifier />
+                        </s:ModifierGroup>
+                    </s:SciChartSurface.ChartModifier>
+                    <!-- Add annotations hints to the user -->
+                    <s:SciChartSurface.Annotations>
+                        <s:TextAnnotation Text="Hello world!" X1="5.0" Y1="5.0"/>
+                    </s:SciChartSurface.Annotations>
+                </s:SciChartSurface>
+
 
 
                 <Button

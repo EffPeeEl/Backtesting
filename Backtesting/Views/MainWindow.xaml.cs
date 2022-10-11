@@ -157,7 +157,7 @@ namespace Backtesting
         public void CreateStockPanel()
         {
  
-            DirectoryInfo d = new DirectoryInfo(@"D:\Finance\OMX Stonks");
+            DirectoryInfo d = new DirectoryInfo(@"C:\Users\Felix\Desktop\Finance");
 
             foreach (var file in d.GetFiles("*.csv"))
             {
@@ -273,7 +273,8 @@ namespace Backtesting
 
         private void ActivateSciChartLicense()
         {
-            // Set this code once in App.xaml.cs or application startupcf73ZvKyIGsdkPvgkVY9Ob4tKzwJqZDu7oAxQatG+oSFQgxqT5I+gy2FRaAUmYswO6XaiNBt410s+mlsapPLfln2ku/xT2eB69Tzq0PRTiePT8f3If2PCRz+EdkBe9d2warxJYeBWMU0NmNjU78odNJMooC8UYF9ByutpbZujRC8MrFHIfi2sHWJzdqWQi9gJUP85OLpwU6kC6E0TbYrMzpwO9nX7Nang3K7LxS/kr+/xeNBW/vDFeqRaMT2xgP2RbYNfXYKJkPLj10Bg57M6yUqjwt+iX+ixKkgw0sK4MzPxeaF75T/avqfuAhVskDQ/fWG6tQryy4Rt3PxXoMZybemuV9ccsEvCgiyHF5IZYan9dy5VAMJKTFDrDEAyR2i9AJS6T620UNa3U0adojXnufJYw0IGt+3ROSzV5pUfTNzM2n7UlNbCdU8jR2lP8dKb8SX+zQKxwKc8mwwUdsCqrrc348nby3MnCgxTxIpgqkPa0s3qvdDV/AQPBPFV/8gHOT+HlejKMpTX/HM36nWUuYNXAIbea+sw8d/FRenlgNckethCmRVSToJw==");
+            SciChartSurface.SetRuntimeLicenseKey("rNAB2MFuo8b/BfBJaA65zkGCGLwUJIj6+jE9/98maJ4DNw6D9EYCDOWVrq5KrfjR8oJgA2PhiIzcTxPYCDplieDXG0RMBlZ/lwcnShlEyoU+htq3BSqnsIhPbsJ1vVH19P/NOQaV2hog/5rT1eb0FH3uJgpLPT0XurFY7utMhux3tKstOvHH9t1/pKWbA6nvPsRfd7QiEqEoupuk11p9ZVWGeOI+m1y+ftxnNpcTvz9doX3DPy1jmDXkZWzd3OROKuYOtUAB6fUwUu8SIBVVY6K5KXqFay4QNSQa7JWkq541rrvqYZDKRWZ/+nPn3DRQcggZfZkezoFI9XjwqTs8VOpTX1e4ypzDNdWNG35Lbu/SISwIehKB3u38rRdhd2eGEkWP7mpTvasHHSrDZnOnVSK4vLXWSG47meOkNMzi4YhH5av+WOsCNsnkx+coXd/5iR8WaW2muk/n6UQ+rgE+N1UvrEOPi7O3BtKRZuBytbu1Lu7nlpgqjgKnr23B88tVsIlop2k=");
+
         }
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)
