@@ -33,11 +33,10 @@ namespace Backtesting
         }
 
 
-
-
-
+        
         public SciChartStockGrapher stockGrapher;
 
+        #region VariabllesForGUI
 
         private SettingClass _settings;
         public SettingClass Settings
@@ -53,7 +52,6 @@ namespace Backtesting
             }
         }
 
-        
         private List<TradeAlgorithm> _tradeAlgoList;
         public List<TradeAlgorithm> TradeAlgoList
         {
@@ -139,6 +137,22 @@ namespace Backtesting
             }
         }
 
+        private string _disabledText;
+        public string disabledText
+        {
+            get { return _disabledText; }
+            set
+            {
+                if (_disabledText != value)
+                {
+                    _disabledText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        #endregion
+
+
         public MainWindow()
         {
             DataContext = this;
@@ -162,84 +176,35 @@ namespace Backtesting
         }
 
 
-
-
         //Creates object for all trading 
         public void InitializeAlgos()
         {
             TradeAlgoList = new List<TradeAlgorithm>();
 
-
-
         }
-
 
         public void CreateStockPanel()
         {
- 
-            DirectoryInfo d = new DirectoryInfo(@"D:\Finance\OMX Stonks");
 
-            foreach (var file in d.GetFiles("*.csv"))
+            StockListBox = new ObservableCollection<StockButton>();
+
+            try
             {
-                var s = new StockButton(Stock.GetTickerFromFileName(file.Name), new Stock(file.Name));
-                StockListBox.Add(s);
+                string sAttr = ConfigurationManager.AppSettings.Get("StockFilesLocation");
 
-
-
-            }
-        }
-
-        private string _disabledText;
-        public string disabledText
-        {
-            get { return _disabledText; }
-            set
-            {
-                if (_disabledText != value)
+                DirectoryInfo d = new DirectoryInfo(sAttr);
+                foreach (var file in d.GetFiles("*.csv"))
                 {
-                    _disabledText = value;
-                    OnPropertyChanged();
+                    var s = new StockButton(Stock.GetTickerFromFileName(file.Name), new Stock(file.Name));
+                    StockListBox.Add(s);
+
                 }
             }
-        }
-
-
-
-        public string SelectedStockUID;
-
-        private void ButtonCreatedByCode_Click(object sender, RoutedEventArgs e)
-        {
-            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
-            
-            var SenderButton = (Button)sender;
-
-            Stock S = new Stock(SenderButton.Uid);
-
-
-            new Thread(() =>
+            catch (Exception e)
             {
-                Thread.CurrentThread.IsBackground = true;
+                Console.WriteLine(e);
+            }
 
-                for (int i = 0; i < S.PriceData.Count; i += Settings.CandleSizeDays)
-                {
-                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(S, i, Settings.CandleSizeDays);
-                    
-                    CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);
-
-
-                    App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-                    {
-                        LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
-                    });
-                    
-                    
-
-                    Thread.Sleep(10);
-
-                }
-            }).Start();
-
-            
 
         }
 
@@ -305,8 +270,7 @@ namespace Backtesting
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)
         {
-            
-            
+
         }
 
         private void ConfigEditBox_Click(object sender, RoutedEventArgs e)
@@ -331,11 +295,39 @@ namespace Backtesting
             {
                 Console.WriteLine("Error writing app settings");
             }
+            CreateStockPanel();
 
         }
 
         private void Stocklist_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+
+            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
+
+            StockButton SB = (StockButton)Stocklist.SelectedItem;
+
+            Stock S = SB._stock;
+
+
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+
+                for (int i = 0; i < S.PriceData.Count; i += Settings.CandleSizeDays)
+                {
+                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(S, i, Settings.CandleSizeDays);
+
+                    CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);
+
+
+                    App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+                    {
+                        LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
+                    });
+
+                }
+            }).Start();
+
 
         }
     }

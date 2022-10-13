@@ -490,16 +490,16 @@
 
                     </StackPanel>
                     
-                    <StackPanel>
+                    <StackPanel HorizontalAlignment="Stretch">
                         <TextBox
                             
                             x:Name="FileLocationConfigBox"
                             
-                            
+                            HorizontalAlignment="Stretch"
                             />
                         <Button
                                 x:Name="ConfigEditBox"
-                                Content="Set config location"
+                                Content="Set stock folder"
                                 Click="ConfigEditBox_Click"
                                 />
 
