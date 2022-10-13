@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,14 +20,14 @@ namespace Backtesting
     /// </summary>
     public partial class CorrelationMatrixWindow : Window
     {
-        Stock CorrMatrixStock;
-        public CorrelationMatrixWindow(Stock _stock)
+        ObservableCollection<StockButton> StockListBoxCorr;
+        public CorrelationMatrixWindow(ObservableCollection<StockButton> _StockListCorr)
         {
-            CorrMatrixStock = _stock;
+            StockListBoxCorr = _StockListCorr;
+
+            // DataContext = this;
 
             
-
-            InitializeComponent();
         }
 
         

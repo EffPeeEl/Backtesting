@@ -270,7 +270,8 @@ namespace Backtesting
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)
         {
-
+            Window w = new CorrelationMatrixWindow(StockListBox);
+            w.Show();
         }
 
         private void ConfigEditBox_Click(object sender, RoutedEventArgs e)

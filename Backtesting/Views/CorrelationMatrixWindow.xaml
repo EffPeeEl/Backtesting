@@ -5,19 +5,77 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Backtesting"
         mc:Ignorable="d"
-        Title="CorrelationMatrixWindow" Height="450" Width="800">
+        Title="CorrelationMatrixWindow" Height="450" Width="800"
+        DataContext="Correleation">
     <Grid>
-        <DataGrid>
-            <DataGridTextColumn Header="First Name"  Binding="{Binding FirstName}"/>
-            <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" />
-            <!--The Email property contains a URI.  For example "mailto:lucy0@adventure-works.com"-->
-            
-            <DataGridCheckBoxColumn Header="Member?" Binding="{Binding IsMember}" />
-            
-            
-        </DataGrid>
-        <ScrollViewer x:Name="CorrScroller">
-            
-        </ScrollViewer>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="2*"/>
+
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ListBox x:Name="CorrelationStockListBox1"
+                         Grid.Column="1" Grid.Row="0" Grid.RowSpan="5" VerticalAlignment="Top"
+                    FontFamily="Cascadia Code"
+   
+                    FontSize="12"
+                    ScrollViewer.CanContentScroll="True"
+                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    ItemsSource="{Binding Path=StockListBoxCorr}"
+                    HorizontalContentAlignment="Stretch" 
+                    
+                         >
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2" >
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Ticker}" />
+                        <TextBlock Grid.Column="2" Text="{Binding LatestPrice}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <ListBox x:Name="CorrelationStockListBox2"
+                    Grid.Column="2" Grid.Row="0" Margin="0,0,0,0" VerticalAlignment="Top"
+
+                    FontFamily="Cascadia Code"
+                    FontSize="12"
+                    ScrollViewer.CanContentScroll="True"
+                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                    ItemsSource="{Binding Path=StockListBoxCorr}"
+                    HorizontalContentAlignment="Stretch" 
+                    
+                         >
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,2" >
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Ticker}" />
+                        <TextBlock Grid.Column="2" Text="{Binding LatestPrice}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+        </ListBox>
+
+
     </Grid>
 </Window>
