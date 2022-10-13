@@ -43,8 +43,17 @@ namespace Backtesting.TradeAlgos
 
         private Stock currentStock;
 
-        public abstract double RunAlgorithm(Stock stock);
-        public abstract double RunAlgorithm(Stock stock, DateTime startDate);
+
+        public double RunAlgorithm(Stock stock)
+        {
+            return RunAlgorithm(stock, stock.PriceData[0].Date, stock.PriceData[stock.PriceData.Count - 1].Date);
+        }
+
+        public double RunAlgorithm(Stock stock, DateTime startDate)
+        {
+            return RunAlgorithm(stock, startDate, stock.PriceData[stock.PriceData.Count - 1].Date);
+        }
+
         public abstract double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate);
 
         private void Buy(int howMany, int dateIndex)

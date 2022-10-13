@@ -31,15 +31,7 @@ namespace Backtesting.TradeAlgos
 
         }
 
-        public override double RunAlgorithm(Stock stock)
-        {
-            return RunAlgorithm(stock, stock.PriceData[0].Date, stock.PriceData[stock.PriceData.Count - 1].Date);
-        }
 
-        public override double RunAlgorithm(Stock stock, DateTime startDate)
-        {
-            return RunAlgorithm(stock, startDate, stock.PriceData[stock.PriceData.Count - 1].Date);
-        }
 
         public override double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate)
         {

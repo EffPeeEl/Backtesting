@@ -80,6 +80,7 @@
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -116,16 +117,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="FinancialData.cs" />
+    <Compile Include="Models\FinancialData.cs" />
     <Compile Include="LvChartGrapher.cs" />
+    <Compile Include="StockButton.cs" />
     <Compile Include="TradeAlgos\BuyOnBollingerAlgo.cs" />
     <Compile Include="Views\CorrelationMatrixWindow.xaml.cs">
       <DependentUpon>CorrelationMatrixWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingClass.cs" />
-    <Compile Include="Stock.cs" />
-    <Compile Include="RawPriceData.cs" />
-    <Compile Include="PriceData.cs" />
+    <Compile Include="Models\Stock.cs" />
+    <Compile Include="Models\RawPriceData.cs" />
+    <Compile Include="Models\PriceData.cs" />
     <Compile Include="SciChartStockGrapher.cs" />
     <Compile Include="TradeAlgos\TradeAlgorithm.cs" />
     <Page Include="Views\CorrelationMatrixWindow.xaml">
@@ -213,6 +215,7 @@
   <ItemGroup>
     <Resource Include="Resources\barchartPic.PNG" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.0-preview.179\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.0-preview.179\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

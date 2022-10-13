@@ -1,5 +1,6 @@
 ﻿using Backtesting.TradeAlgos;
 using LiveCharts;
+using LiveCharts.Defaults;
 using SciChart.Charting.Model.DataSeries;
 using SciChart.Charting.Visuals;
 using SciChart.Charting.Visuals.PointMarkers;
@@ -12,6 +13,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+
+using System.Configuration;
+using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 
 namespace Backtesting
 {
@@ -106,15 +111,40 @@ namespace Backtesting
             }
         }
 
+        private ObservableCollection<StockButton> _stockListBox;
+        public ObservableCollection<StockButton> StockListBox
+        {
+            get { return _stockListBox; }
+            set
+            {
+                if (_stockListBox != value)
+                {
+                    _stockListBox = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
-
+        private ObservableCollection<string> _logList;
+        public ObservableCollection<string> LogList
+        {
+            get { return _logList; }
+            set
+            {
+                if (_logList != value)
+                {
+                    _logList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public MainWindow()
         {
             DataContext = this;
             Settings = new SettingClass();
-
-            
+            LogList = new ObservableCollection<string>();
+            StockListBox = new ObservableCollection<StockButton>();
 
             ActivateSciChartLicense();
 
@@ -123,25 +153,15 @@ namespace Backtesting
 
             CreateStockPanel();
 
-            
 
+            stockGrapher = new SciChartStockGrapher(5);
+            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
             
 
 
         }
-        private SeriesCollection _sc;
-        public SeriesCollection SC
-        {
-            get { return _sc; }
-            set
-            {
-                if (_sc != value)
-                {
-                    _sc = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+
+
 
 
         //Creates object for all trading 
@@ -157,34 +177,15 @@ namespace Backtesting
         public void CreateStockPanel()
         {
  
-            DirectoryInfo d = new DirectoryInfo(@"C:\Users\Felix\Desktop\Finance");
+            DirectoryInfo d = new DirectoryInfo(@"D:\Finance\OMX Stonks");
 
             foreach (var file in d.GetFiles("*.csv"))
             {
-                var s = new Button 
-                {
-                    Content = file.Name.Remove(file.Name.IndexOf('-'), file.Name.Length - file.Name.IndexOf('-')),
-                    Uid = file.Name,
+                var s = new StockButton(Stock.GetTickerFromFileName(file.Name), new Stock(file.Name));
+                StockListBox.Add(s);
 
-                };
-                s.Click += ButtonCreatedByCode_Click;
-                Stocklist.Children.Add(s);
-            }
-        }
 
-       
 
-        private string _logString;
-        public string LogString
-        {
-            get { return _logString; }
-            set
-            {
-                if (_logString != value)
-                {
-                    _logString = value;
-                    OnPropertyChanged();
-                }
             }
         }
 
@@ -208,14 +209,39 @@ namespace Backtesting
 
         private void ButtonCreatedByCode_Click(object sender, RoutedEventArgs e)
         {
-            LvChartGrapher Grapher = new LvChartGrapher();
-            var x = (Button)sender;
+            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
+            
+            var SenderButton = (Button)sender;
 
-            SC = Grapher.CreateChart(new Stock(x.Uid));
+            Stock S = new Stock(SenderButton.Uid);
+
+
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+
+                for (int i = 0; i < S.PriceData.Count; i += Settings.CandleSizeDays)
+                {
+                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(S, i, Settings.CandleSizeDays);
+                    
+                    CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);
+
+
+                    App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+                    {
+                        LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
+                    });
+                    
+                    
+
+                    Thread.Sleep(10);
+
+                }
+            }).Start();
+
+            
 
         }
-
-
 
 
         #region MenuBarButtons
@@ -279,10 +305,38 @@ namespace Backtesting
 
         private void CorrelationButton_Click(object sender, RoutedEventArgs e)
         {
-            CorrelationMatrixWindow subWindow = new CorrelationMatrixWindow(stockGrapher.SelectedStock);
-            subWindow.Show();
+            
+            
         }
 
+        private void ConfigEditBox_Click(object sender, RoutedEventArgs e)
+        {
 
+            try
+            {
+                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                var settings = configFile.AppSettings.Settings;
+                if (settings["StockFilesLocation"] == null)
+                {
+                    settings.Add("StockFilesLocation", FileLocationConfigBox.Text);
+                }
+                else
+                {
+                    settings["StockFilesLocation"].Value = FileLocationConfigBox.Text;
+                }
+                configFile.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                Console.WriteLine("Error writing app settings");
+            }
+
+        }
+
+        private void Stocklist_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+        }
     }
 }

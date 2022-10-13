@@ -123,7 +123,10 @@ namespace Backtesting
 
         }
 
-
+        public static string GetTickerFromFileName(string fileName)
+        {
+            return fileName.Remove(fileName.IndexOf('-'), fileName.Length - fileName.IndexOf('-'));
+        }
 
         public override string ToString()
         {

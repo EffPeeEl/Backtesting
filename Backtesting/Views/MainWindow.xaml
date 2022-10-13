@@ -114,17 +114,11 @@
             
             <Grid x:Name="StockGrid" Grid.Row="1" Grid.Column="1" Visibility="Visible" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="7*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -136,33 +130,103 @@
                     <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
 
-                <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Background="Green" Margin="0,0,0,0" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Name="Stocklist">
+                <ListBox x:Name="Stocklist"
+                         Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" Margin="0,0,0,0" VerticalAlignment="Top"
+                    FontFamily="Cascadia Code"
+   
+                    FontSize="12"
+                    ScrollViewer.CanContentScroll="True"
+                    ScrollViewer.VerticalScrollBarVisibility="Visible"
+                    ItemsSource="{Binding Path=StockListBox}"
+                    HorizontalContentAlignment="Stretch" 
+                    MouseDoubleClick="Stocklist_MouseDoubleClick"
+                         >
 
-                    </StackPanel>
-                </ScrollViewer>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,2" >
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="50" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Ticker}" />
+                                <TextBlock Grid.Column="2" Text="{Binding LatestPrice}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    
+                    
 
+                </ListBox>
+                
 
-                <s:SciChartSurface x:Name="sciChartSurface" Grid.Column="1" Grid.RowSpan="10" Grid.ColumnSpan="7">
-                    <!--  Create an X Axis  -->
+                
+
+                <s:SciChartSurface x:Name="Surface" 
+                                   Grid.Row="0" Grid.Column="1" 
+                                   Grid.ColumnSpan="2" 
+                                   Grid.RowSpan="6" >
+
+                    <s:SciChartSurface.RenderableSeries
+                        
+                        >
+                        <s:FastCandlestickRenderableSeries DataSeries="{Binding Path=CandleDataSeries}" 
+                            x:Name="CandleStickRenderableSeries" 
+                            StrokeUp="GreenYellow"
+                            StrokeDown="Red"
+                            FillUp="#33ADFF2F"
+                            FillDown="#33FF0000"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            DataPointWidth="0.5"/>
+
+                        <s:FastLineRenderableSeries DataSeries="{Binding Path=UpperBollingerBandSeries}" x:Name="UpperBollingerRenderableSeries"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            />
+                        <s:FastLineRenderableSeries DataSeries="{Binding Path=LowerBollingerBandSeries}" x:Name="LowerBollingerRenderableSeries"
+                            StrokeThickness="1"
+                            AntiAliasing="False"
+                            />
+
+                    </s:SciChartSurface.RenderableSeries>
+
                     <s:SciChartSurface.XAxis>
-                        <s:NumericAxis AxisTitle="Number of Samples (per Series)"/>
+                        <s:CategoryDateTimeAxis 
+                            AutoRange="Always"
+                            x:Name="rSeriesXAxis"/>
+
                     </s:SciChartSurface.XAxis>
-                    <!--  Create a Y Axis  -->
-                    <s:SciChartSurface.YAxis>
-                        <s:NumericAxis AxisTitle="Value"/>
+
+                    <s:SciChartSurface.YAxis >
+                        <s:NumericAxis
+                            AutoRange="Always"
+                            x:Name="rSeriesYAxis"/>
                     </s:SciChartSurface.YAxis>
-                    <!--  Specify interactivity modifiers  -->
+
                     <s:SciChartSurface.ChartModifier>
                         <s:ModifierGroup>
-                            <s:RubberBandXyZoomModifier />
-                            <s:ZoomExtentsModifier />
+                            <!-- Allow drag to zoom on Left mouse -->
+                            <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton"
+                                                 RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF"
+                                                 RubberBandStrokeDashArray="2 2"/>
+                            <!-- Allow pan on Right mouse drag -->
+                            <s:ZoomPanModifier ExecuteOn="MouseRightButton" ClipModeX="None" />
+                            <!-- Allow Dragging YAxis to Scale -->
+                            <s:YAxisDragModifier DragMode="Scale"/>
+                            <!-- Allow Dragging XAxis to Pan -->
+                            <s:XAxisDragModifier DragMode="Pan"/>
+                            <!-- Allow Mousewheel Zoom -->
+                            <s:MouseWheelZoomModifier/>
+                            <!-- Allow Zoom to Extents on double click -->
+                            <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
                         </s:ModifierGroup>
                     </s:SciChartSurface.ChartModifier>
-                    <!-- Add annotations hints to the user -->
-                    <s:SciChartSurface.Annotations>
-                        <s:TextAnnotation Text="Hello world!" X1="5.0" Y1="5.0"/>
-                    </s:SciChartSurface.Annotations>
+
+                    <!--  XAxis, YAxis omitted for brevity  -->
+
                 </s:SciChartSurface>
 
 
@@ -175,7 +239,6 @@
                     Content="Correleation Matrix"
                     Grid.ColumnSpan="1"
                     />
-                
 
                 <StackPanel Grid.Column="5"
                             Grid.Row="5"
@@ -217,23 +280,20 @@
                 </StackPanel>
 
 
-                <ScrollViewer 
+                <ListBox
                     Grid.Row="0"
                     Grid.RowSpan="4"
                     Grid.Column="7"
                     Grid.ColumnSpan="2"
-                    Margin="5,0,0,0"
-                    
-                    >
-                    <TextBlock
-                        x:Name="LogTextBlock"
-                        FontFamily="Cascadia Code"
-                        FontSize="12"
-                        Text="{Binding Path=LogString}"
-                        
-                    />
-                    
-                </ScrollViewer>
+                    x:Name="LogTextBlock"
+                    FontFamily="Cascadia Code"
+   
+                    FontSize="12"
+                    ScrollViewer.CanContentScroll="True"
+                    ScrollViewer.VerticalScrollBarVisibility="Visible"
+                    ItemsSource="{Binding Path=LogList}"
+                />
+
                 <TextBlock
                     Grid.Row="4"
                     Grid.Column="7"
@@ -251,23 +311,6 @@
                     Text="{Binding Path=tempAlgo.Score}"
                     >
                 </TextBlock>
-                <ScrollViewer 
-                    Grid.Row="0"
-                    Grid.RowSpan="4"
-                    Grid.Column="7"
-                    Grid.ColumnSpan="2"
-                    Margin="5,0,0,0"
-                    
-                    >
-                    <TextBlock
-                        x:Name="AlgoSortedLog"
-                        FontFamily="Cascadia Code"
-                        FontSize="12"
-                        Text="{Binding Path=LogString}"
-                        
-                    />
-
-                </ScrollViewer>
 
 
             </Grid>
@@ -443,9 +486,29 @@
                             Text="{Binding Path= Settings.IncrementStDevs, Mode=TwoWay}"
                             />
                         </DockPanel>
+                        
+
                     </StackPanel>
                     
-                    
+                    <StackPanel>
+                        <TextBox
+                            
+                            x:Name="FileLocationConfigBox"
+                            
+                            
+                            />
+                        <Button
+                                x:Name="ConfigEditBox"
+                                Content="Set config location"
+                                Click="ConfigEditBox_Click"
+                                />
+
+
+
+
+
+                    </StackPanel>
+
 
 
                 </StackPanel >
