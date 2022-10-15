@@ -494,6 +494,7 @@
                     
                     <StackPanel HorizontalAlignment="Stretch">
                         <TextBox
+                            Width="Auto"
                             
                             x:Name="FileLocationConfigBox"
                             
