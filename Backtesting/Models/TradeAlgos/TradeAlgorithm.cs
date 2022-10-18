@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,18 @@ namespace Backtesting.TradeAlgos
         }
 
 
-        public  List<PriceData> Buys { get; set; }
-        public  List<PriceData> Sells { get; set; }
+        public TradeAlgorithm()
+        {
+            Actions = new ObservableCollection<AlgoAction>();
+            Buys = new ObservableCollection<PriceData>();
+            Sells = new ObservableCollection<PriceData>();
+        }
+
+        public ObservableCollection<AlgoAction> Actions;
+
+
+        public ObservableCollection<PriceData> Buys { get; set; }
+        public ObservableCollection<PriceData> Sells { get; set; }
 
 
         public  string AlgoName { get; set; }
@@ -43,31 +54,55 @@ namespace Backtesting.TradeAlgos
 
         private Stock currentStock;
 
+        public abstract double RunAlgorithmSingleStep(Stock stock, int index);
 
-        public double RunAlgorithm(Stock stock)
+
+        public void RunAlgorithm(Stock stock)
         {
-            return RunAlgorithm(stock, stock.PriceData[0].Date, stock.PriceData[stock.PriceData.Count - 1].Date);
+            RunAlgorithm(stock, stock.PriceData[0].Date, stock.PriceData[stock.PriceData.Count - 1].Date);
+        }
+        public void RunAlgorithm(Stock stock, DateTime startDate)
+        {
+            RunAlgorithm(stock, startDate, stock.PriceData[stock.PriceData.Count - 1].Date);
+        }
+        public void RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate)
+        {
+
+            //Kanske kan gå och ändra med en IndexOf() - metod men iom att det är en property av klassen som ska hittas gör jag såhär
+            int indexToStart = 0;
+            int indexToEnd = 0;
+            for (int i = 0; i < stock.PriceData.Count; i++)
+            {
+                if (stock.PriceData[i].Date == startDate)
+                {
+                    indexToStart = i;
+                }
+                if (stock.PriceData[i].Date == endDate)
+                {
+                    indexToEnd = i;
+                }
+            }
+
+
+            for (int i = indexToStart; i <= indexToEnd; i++)
+            {
+                RunAlgorithmSingleStep(stock, i);
+            }
+
+
         }
 
-        public double RunAlgorithm(Stock stock, DateTime startDate)
-        {
-            return RunAlgorithm(stock, startDate, stock.PriceData[stock.PriceData.Count - 1].Date);
-        }
-
-        public abstract double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate);
-
-        private void Buy(int howMany, int dateIndex)
+        protected void Buy(int howMany, int dateIndex)
         {
             for (int i = 0; i < howMany; i++)
                 Buys.Add(currentStock.PriceData[dateIndex]);
         }
-        private void Sell(int howMany, int dateIndex)
+        protected void Sell(int howMany, int dateIndex)
         {
             for (int i = 0; i < howMany; i++)
                 Sells.Add(currentStock.PriceData[dateIndex]);
         }
-
-        private void SellAll(int dateIndex)
+        protected void SellAll(int dateIndex)
         {
             for(int i = 0; i < Buys.Count-Sells.Count; i ++)
                 Sells.Add(currentStock.PriceData[dateIndex]);
@@ -123,5 +158,32 @@ namespace Backtesting.TradeAlgos
 
         }
 
+    }
+
+    public class AlgoAction
+    {
+        public TradeAction Action { get; private set; }
+        public int Amount { get; private set; }
+        public PriceData StockPrice { get; private set; }
+
+
+        public AlgoAction(TradeAction action, int amount, PriceData stockPrice)
+        {
+            this.Action = action;
+            this.Amount = amount;
+            this.StockPrice = stockPrice;
+        }
+
+
+        public double GetTotal()
+        {
+            return Amount * StockPrice.ClosingPrice;
+        }
+
+    }
+    public enum TradeAction
+    {
+        Buy,
+        Sell
     }
 }

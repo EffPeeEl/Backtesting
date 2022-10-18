@@ -52,8 +52,8 @@ namespace Backtesting
             }
         }
 
-        private List<TradeAlgorithm> _tradeAlgoList;
-        public List<TradeAlgorithm> TradeAlgoList
+        private ObservableCollection<TradeAlgorithm> _tradeAlgoList;
+        public ObservableCollection<TradeAlgorithm> TradeAlgoList
         {
             get { return _tradeAlgoList; }
             set
@@ -61,6 +61,34 @@ namespace Backtesting
                 if (_tradeAlgoList != value)
                 {
                     _tradeAlgoList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private TradeAlgorithm _selectedAlgorithm;
+        public TradeAlgorithm SelectedAlgorithm
+        {
+            get { return _selectedAlgorithm; }
+            set
+            {
+                if (_selectedAlgorithm != value)
+                {
+                    _selectedAlgorithm = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Stock _selectedStock;
+        public Stock SelectedStock
+        {
+            get { return _selectedStock; }
+            set
+            {
+                if (_selectedStock != value)
+                {
+                    _selectedStock = value;
                     OnPropertyChanged();
                 }
             }
@@ -137,19 +165,10 @@ namespace Backtesting
             }
         }
 
-        private string _disabledText;
-        public string disabledText
-        {
-            get { return _disabledText; }
-            set
-            {
-                if (_disabledText != value)
-                {
-                    _disabledText = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+
+
+
+
         #endregion
 
 
@@ -179,8 +198,8 @@ namespace Backtesting
         //Creates object for all trading 
         public void InitializeAlgos()
         {
-            TradeAlgoList = new List<TradeAlgorithm>();
-
+            TradeAlgoList = new ObservableCollection<TradeAlgorithm>();
+            TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays));
         }
 
         public void CreateStockPanel()
@@ -188,19 +207,23 @@ namespace Backtesting
 
             StockListBox = new ObservableCollection<StockButton>();
 
+            
+
             try
             {
                 string sAttr = ConfigurationManager.AppSettings.Get("StockFilesLocation");
 
                 DirectoryInfo d = new DirectoryInfo(sAttr);
+
                 foreach (var file in d.GetFiles("*.csv"))
                 {
-                    var s = new StockButton(Stock.GetTickerFromFileName(file.Name), new Stock(file.Name));
+                    var s = new StockButton(Stock.GetTickerFromFileName(file.Name), new Stock(file.FullName));
                     StockListBox.Add(s);
 
                 }
+
             }
-            catch (Exception e)
+            catch (ArgumentNullException e)
             {
                 Console.WriteLine(e);
             }
@@ -302,34 +325,110 @@ namespace Backtesting
 
         private void Stocklist_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            
 
-            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
-
+            // Fråga hur detta kan användas utan null
             StockButton SB = (StockButton)Stocklist.SelectedItem;
 
-            Stock S = SB._stock;
+            SelectedStock = SB._stock;
+
+            RenderStock(SelectedStock);
+        }
+
+        private void RenderStock(Stock s)
+        {
+            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
+            UpperBollingerBandSeries = new XyDataSeries<DateTime, double>();
+            LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
+
+
+            s.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays) ;
+
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+
+                for (int i = 0; i < s.PriceData.Count; i += Settings.CandleSizeDays)
+                {
+                    (DateTime x , OhlcPoint y) = stockGrapher.GetNextDayDataCandle(s, i, Settings.CandleSizeDays);
+                    
+
+                    CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close); 
+                    if (Settings.WillRenderBollingerBands)
+                    {
+                        UpperBollingerBandSeries.Append(x, s.PriceData[i].UpperBollinger);
+                        LowerBollingerBandSeries.Append(x, s.PriceData[i].LowerBollinger);
+                    }
+
+                    App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
+                    {
+                        //ADD TO LOG
+                        if(Settings.WillLogPrice)
+                            LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
+
+                        if (Settings.WillLogActions)
+                            LogList.Insert(0, "Action.None");
+
+                    });
+
+
+
+
+
+
+
+                }
+            }).Start();
+        }
+
+        private void SimulationButton_Click(object sender, RoutedEventArgs e)
+        {
+            RenderAlgorithm(SelectedStock, SelectedAlgorithm);
+
+
+        }
+
+        private void RenderAlgorithm(Stock selectedStock, TradeAlgorithm selectedAlgorithm)
+        {
+
+            CandleDataSeries = new OhlcDataSeries<DateTime, double>();
+            UpperBollingerBandSeries = new XyDataSeries<DateTime, double>();
+            LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
+            selectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
+
 
 
             new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
 
-                for (int i = 0; i < S.PriceData.Count; i += Settings.CandleSizeDays)
+                for (int i = 0; i < selectedStock.PriceData.Count; i += Settings.CandleSizeDays)
                 {
-                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(S, i, Settings.CandleSizeDays);
+                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(selectedStock, i, Settings.CandleSizeDays);
+
 
                     CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);
 
-
-                    App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+                    if(Settings.WillRenderBollingerBands) 
                     {
-                        LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
+                        UpperBollingerBandSeries.Append(x, selectedStock.PriceData[i].UpperBollinger);
+                        LowerBollingerBandSeries.Append(x, selectedStock.PriceData[i].LowerBollinger);
+                    }
+
+
+                    App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
+                    {
+                        //ADD TO LOG
+                        if (Settings.WillLogPrice)
+                            LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
+
+                        if (Settings.WillLogActions)
+                            LogList.Insert(0, "Action.None");
+
                     });
 
                 }
             }).Start();
-
-
         }
     }
 }

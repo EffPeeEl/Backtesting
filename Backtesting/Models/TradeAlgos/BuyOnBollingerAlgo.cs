@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,20 +23,38 @@ namespace Backtesting.TradeAlgos
             SimpleMovingAverageDays = _SMAdays;
             StDevsFromAverage = _StDevs;
 
-            Buys = new List<PriceData>();
-            Sells = new List<PriceData>();
+            Buys = new ObservableCollection<PriceData>();
+            Sells = new ObservableCollection<PriceData>();
 
             Score = 0;
 
             
+             
+        }
 
+
+       
+
+        public override double RunAlgorithmSingleStep(Stock stock, int index)
+        {
+            int howManyStocksToBuy = 1;
+            if(stock.PriceData[index].ClosingPrice < stock.PriceData[index].LowerBollinger)
+            {
+                Buy(howManyStocksToBuy, index);
+            }
+            else if(stock.PriceData[index].ClosingPrice > stock.PriceData[index].UpperBollinger)
+            {
+                Buy(howManyStocksToBuy, index);
+            }
+
+            return Score;
         }
 
 
 
-        public override double RunAlgorithm(Stock stock, DateTime startDate, DateTime endDate)
+        public override string ToString()
         {
-            return Score;
+            return $"{AlgoName}";
         }
 
 

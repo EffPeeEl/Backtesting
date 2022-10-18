@@ -27,16 +27,71 @@ namespace Backtesting
             RangeLowerStDevs = 1;
             RangeUpperStDevs = 3;
             IncrementStDevs = 0.1;
+            WillRenderBollingerBands = true;
+            WillLogActions = true;
 
         }
 
         private string ConfigLocation;
         private string StockDataPath;
 
-
-
         public string TypeOfChart { get; private set; }
 
+        private bool _willRenderBollingerBands;
+        public bool WillRenderBollingerBands
+        {
+            get { return _willRenderBollingerBands; }
+            set
+            {
+                if (_willRenderBollingerBands != value)
+                {
+                    _willRenderBollingerBands = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _willLogActions;
+        public bool WillLogActions
+        {
+            get { return _willLogActions; }
+            set
+            {
+                if (_willLogActions != value)
+                {
+                    _willLogActions = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _willLogPrice;
+        public bool WillLogPrice
+        {
+            get { return _willLogPrice; }
+            set
+            {
+                if (_willLogPrice != value)
+                {
+                    _willLogPrice = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _disabledText;
+        public string disabledText
+        {
+            get { return _disabledText; }
+            set
+            {
+                if (_disabledText != value)
+                {
+                    _disabledText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private double _bollingerStDevs;
         public double BollingerStDevs
@@ -79,8 +134,6 @@ namespace Backtesting
                 }
             }
         }
-
-
 
         private int _rangeLowerAvgDays;
         public int RangeLowerAvgDays
@@ -127,7 +180,6 @@ namespace Backtesting
             }
         }
 
-
         private double _rangeLowerStDevs;
         public double RangeLowerStDevs
         {
@@ -173,11 +225,6 @@ namespace Backtesting
             }
         }
 
-        private void updateRangeString()
-        {
-            AlgoRangeString = $"Simulate for RANGE [{RangeLowerStDevs}:{RangeUpperStDevs} + {IncrementStDevs}] - [{RangeLowerAvgDays}:{RangeUpperAvgDays} + {IncrementDays}]";
-        }
-
         private string _algoRangeString;
         public string AlgoRangeString
         {
@@ -195,6 +242,12 @@ namespace Backtesting
             }
         }
 
+
+
+        private void updateRangeString()
+        {
+            AlgoRangeString = $"Simulate for RANGE [{RangeLowerStDevs}:{RangeUpperStDevs} + {IncrementStDevs}] - [{RangeLowerAvgDays}:{RangeUpperAvgDays} + {IncrementDays}]";
+        }
 
         public void ChangeStockDataLocation(string newPath)
         {

@@ -39,20 +39,20 @@ namespace Backtesting
         //        var candleData = GetNextDayDataCandle(i * candleSize, candleSize);
 
         //        ohlcSci.Append(candleData.Item1, candleData.Item2.Open, candleData.Item2.High, candleData.Item2.Low, candleData.Item2.Close);
-                
+
         //    }
 
         //    return ohlcSci;
 
         //}
 
-        
+
 
         //public XyDataSeries<DateTime, double> CreateBollingerSci(int candleSize, bool isUpper, double _bollingerStDevs, int _bollingerAvgDayCount)
         //{
         //    S.CreateBollingerValues(_bollingerStDevs, _bollingerAvgDayCount);
 
-            
+
         //    XyDataSeries<DateTime, double> BollingerSeries = new XyDataSeries<DateTime, double>();
         //    double sum;
         //    double averageInCandle = 0;
@@ -81,12 +81,12 @@ namespace Backtesting
         //            BollingerSeries.Append(S.PriceData[i].Date, averageInCandle);
 
         //        }
- 
+
         //    return BollingerSeries;
 
         //}
 
-        
+
         //internal OhlcDataSeries<DateTime, double> CreateGraphSci(string senderUID, string typeOfChart, int daysInCandle)
         //{
         //    switch (typeOfChart)
@@ -99,16 +99,16 @@ namespace Backtesting
         //    }
         //}
 
-        //public (DateTime, double) GetNextDayDataBollinger(int dayIndex, bool isUpper)
-        //{
-        //    (DateTime, double) data = (DateTime.Now, 0);
-        //    if (isUpper)
-        //        data = (S.PriceData[dayIndex].Date, S.PriceData[dayIndex].UpperBollinger);
-        //    else
-        //        data = (S.PriceData[dayIndex].Date, S.PriceData[dayIndex].LowerBollinger);
+        public (DateTime, double) GetNextDayDataBollinger(Stock s, int dayIndex, bool isUpper)
+        {
+            
+            if (isUpper)
+                return (s.PriceData[dayIndex].Date, s.PriceData[dayIndex].UpperBollinger);
+            else
+                return (s.PriceData[dayIndex].Date, s.PriceData[dayIndex].LowerBollinger);
 
-        //    return data;
-        //}
+            
+        }
 
 
 

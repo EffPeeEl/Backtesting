@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -26,7 +27,10 @@ namespace Backtesting
             _Name = fileName.Remove(fileName.IndexOf('-'), fileName.Length - fileName.IndexOf('-'));
 
             PriceData = new List<PriceData>();
-            _filePath = @"D:\Finance\OMX Stonks" + "\\" + fileName;
+
+            _filePath = fileName;
+
+
 
             //Config for CSV
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
