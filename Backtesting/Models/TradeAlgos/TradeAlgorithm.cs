@@ -54,7 +54,7 @@ namespace Backtesting.TradeAlgos
 
         private Stock currentStock;
 
-        public abstract double RunAlgorithmSingleStep(Stock stock, int index);
+        public abstract AlgoAction RunAlgorithmSingleStep(Stock stock, int index);
 
 
         public void RunAlgorithm(Stock stock)
@@ -92,10 +92,15 @@ namespace Backtesting.TradeAlgos
 
         }
 
-        protected void Buy(int howMany, int dateIndex)
+        protected void Buy(Stock s, int howMany, int dateIndex)
         {
             for (int i = 0; i < howMany; i++)
-                Buys.Add(currentStock.PriceData[dateIndex]);
+            {
+                Buys.Add(s.PriceData[dateIndex]);
+            }
+
+            Actions.Add(new AlgoAction(TradeAction.Buy, howMany, s.PriceData[dateIndex]));
+
         }
         protected void Sell(int howMany, int dateIndex)
         {
@@ -178,6 +183,11 @@ namespace Backtesting.TradeAlgos
         public double GetTotal()
         {
             return Amount * StockPrice.ClosingPrice;
+        }
+
+        public override string ToString()
+        {
+            return $"{Action} * [{Amount}] at {StockPrice.ClosingPrice}";
         }
 
     }

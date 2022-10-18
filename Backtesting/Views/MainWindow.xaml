@@ -269,6 +269,13 @@
                                 />
 
                     </Grid>
+                    <Slider x:Name="SimSpeedSlider"
+                            Value="{Binding Path=Settings.SimulationSpeed}"
+                            Minimum="0"
+                            Maximum="200"
+                            />
+
+
                     <Button x:Name="SimulationAllButton"
                             Content="{Binding Path=Settings.AlgoRangeString}"
                             
@@ -283,15 +290,17 @@
 
 
                 <ListBox
+                    
                     Grid.Row="0"
                     Grid.RowSpan="4"
                     Grid.Column="7"
                     Grid.ColumnSpan="2"
-                    x:Name="LogTextBlock"
+                    x:Name="LogListBox"
                     FontFamily="Cascadia Code"
    
                     FontSize="12"
                     ScrollViewer.CanContentScroll="True"
+                    
                     ScrollViewer.VerticalScrollBarVisibility="Visible"
                     ItemsSource="{Binding Path=LogList}"
                 />

@@ -363,18 +363,10 @@ namespace Backtesting
                     App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
                     {
                         //ADD TO LOG
-                        if(Settings.WillLogPrice)
+                        if (Settings.WillLogPrice)
                             LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
 
-                        if (Settings.WillLogActions)
-                            LogList.Insert(0, "Action.None");
-
                     });
-
-
-
-
-
 
 
                 }
@@ -383,18 +375,18 @@ namespace Backtesting
 
         private void SimulationButton_Click(object sender, RoutedEventArgs e)
         {
-            RenderAlgorithm(SelectedStock, SelectedAlgorithm);
+            RenderAlgorithm();
 
 
         }
 
-        private void RenderAlgorithm(Stock selectedStock, TradeAlgorithm selectedAlgorithm)
+        private void RenderAlgorithm()
         {
 
             CandleDataSeries = new OhlcDataSeries<DateTime, double>();
             UpperBollingerBandSeries = new XyDataSeries<DateTime, double>();
             LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
-            selectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
+            SelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
 
 
 
@@ -402,18 +394,20 @@ namespace Backtesting
             {
                 Thread.CurrentThread.IsBackground = true;
 
-                for (int i = 0; i < selectedStock.PriceData.Count; i += Settings.CandleSizeDays)
+                for (int i = 0; i < SelectedStock.PriceData.Count; i += Settings.CandleSizeDays)
                 {
-                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(selectedStock, i, Settings.CandleSizeDays);
+                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(SelectedStock, i, Settings.CandleSizeDays);
 
 
                     CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);
 
-                    if(Settings.WillRenderBollingerBands) 
+                    if (Settings.WillRenderBollingerBands)
                     {
-                        UpperBollingerBandSeries.Append(x, selectedStock.PriceData[i].UpperBollinger);
-                        LowerBollingerBandSeries.Append(x, selectedStock.PriceData[i].LowerBollinger);
+                        UpperBollingerBandSeries.Append(x, SelectedStock.PriceData[i].UpperBollinger);
+                        LowerBollingerBandSeries.Append(x, SelectedStock.PriceData[i].LowerBollinger);
                     }
+
+
 
 
                     App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
@@ -423,10 +417,19 @@ namespace Backtesting
                             LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
 
                         if (Settings.WillLogActions)
-                            LogList.Insert(0, "Action.None");
+                        {
+                            var algoAction = SelectedAlgorithm.RunAlgorithmSingleStep(this.SelectedStock, i);
+                            if (algoAction != null)
+                            {
+                                LogList.Insert(0, $"[{SelectedAlgorithm}] - {SelectedStock._Ticker}: {algoAction}");
+                            }
+                        }
 
                     });
 
+                    Thread.Sleep(Settings.SimulationSpeed);
+
+                    
                 }
             }).Start();
         }

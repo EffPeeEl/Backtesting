@@ -30,5 +30,7 @@ namespace Backtesting
             this._stock = stock;
         }
 
+        
+
     }
 }

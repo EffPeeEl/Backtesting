@@ -242,7 +242,22 @@ namespace Backtesting
             }
         }
 
-
+        private int _simulationSpeed;
+        public int SimulationSpeed
+        {
+            get
+            {
+                return _simulationSpeed;
+            }
+            set
+            {
+                if (_simulationSpeed != value)
+                {
+                    _simulationSpeed = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private void updateRangeString()
         {

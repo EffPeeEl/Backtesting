@@ -35,19 +35,18 @@ namespace Backtesting.TradeAlgos
 
        
 
-        public override double RunAlgorithmSingleStep(Stock stock, int index)
+        public override AlgoAction RunAlgorithmSingleStep(Stock stock, int index)
         {
             int howManyStocksToBuy = 1;
             if(stock.PriceData[index].ClosingPrice < stock.PriceData[index].LowerBollinger)
             {
-                Buy(howManyStocksToBuy, index);
-            }
-            else if(stock.PriceData[index].ClosingPrice > stock.PriceData[index].UpperBollinger)
-            {
-                Buy(howManyStocksToBuy, index);
+                Buy(stock ,howManyStocksToBuy, index);
+                return Actions.Last();
+
             }
 
-            return Score;
+
+            return null;
         }
 
 
