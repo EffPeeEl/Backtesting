@@ -190,8 +190,12 @@
                             StrokeThickness="1"
                             AntiAliasing="False"
                             />
+                        
+
 
                     </s:SciChartSurface.RenderableSeries>
+
+
 
                     <s:SciChartSurface.XAxis>
                         <s:CategoryDateTimeAxis 

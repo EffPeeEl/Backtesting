@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Configuration;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using Backtesting.Models.TradeAlgos;
 
 namespace Backtesting
 {
@@ -103,6 +104,20 @@ namespace Backtesting
                 if (_candleDataSeries != value)
                 {
                     _candleDataSeries = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private XyDataSeries<DateTime, double> _volumeColumnSeries;
+        public XyDataSeries<DateTime, double> VolumeColumnSeries
+        {
+            get { return _volumeColumnSeries; }
+            set
+            {
+                if (_volumeColumnSeries != value)
+                {
+                    _volumeColumnSeries = value;
                     OnPropertyChanged();
                 }
             }
@@ -200,6 +215,8 @@ namespace Backtesting
         {
             TradeAlgoList = new ObservableCollection<TradeAlgorithm>();
             TradeAlgoList.Add(new BuyOnBollingerAlgo(Settings.BollingerStDevs, Settings.BollingerAvgDays));
+
+            TradeAlgoList.Add(new SMACrossingAlgo(20, 80));
         }
 
         public void CreateStockPanel()
@@ -340,6 +357,7 @@ namespace Backtesting
             CandleDataSeries = new OhlcDataSeries<DateTime, double>();
             UpperBollingerBandSeries = new XyDataSeries<DateTime, double>();
             LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
+            VolumeColumnSeries = new XyDataSeries<DateTime, double>();
 
 
             s.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays) ;
@@ -358,6 +376,12 @@ namespace Backtesting
                     {
                         UpperBollingerBandSeries.Append(x, s.PriceData[i].UpperBollinger);
                         LowerBollingerBandSeries.Append(x, s.PriceData[i].LowerBollinger);
+                    }
+
+                    //Fix setting for volume rendering 
+                    if(true)
+                    {
+                        VolumeColumnSeries.Append(x, s.PriceData[i].Volume);
                     }
 
                     App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
@@ -389,6 +413,7 @@ namespace Backtesting
             SelectedStock.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays);
 
 
+            int sleepTime = Convert.ToInt32(SimSpeedSlider.Maximum);
 
             new Thread(() =>
             {
@@ -418,7 +443,7 @@ namespace Backtesting
 
                         if (Settings.WillLogActions)
                         {
-                            var algoAction = SelectedAlgorithm.RunAlgorithmSingleStep(this.SelectedStock, i);
+                            var algoAction = SelectedAlgorithm.RunAlgorithmSingleStep(this.SelectedStock, i, Settings.CandleSizeDays);
                             if (algoAction != null)
                             {
                                 LogList.Insert(0, $"[{SelectedAlgorithm}] - {SelectedStock._Ticker}: {algoAction}");
@@ -427,7 +452,7 @@ namespace Backtesting
 
                     });
 
-                    Thread.Sleep(Settings.SimulationSpeed);
+                    Thread.Sleep(sleepTime - Settings.SimulationSpeed);
 
                     
                 }

@@ -54,6 +54,8 @@ namespace Backtesting.TradeAlgos
 
         private Stock currentStock;
 
+        public abstract AlgoAction RunAlgorithmSingleStep(Stock stock, int index, int candleSize);
+
         public abstract AlgoAction RunAlgorithmSingleStep(Stock stock, int index);
 
 

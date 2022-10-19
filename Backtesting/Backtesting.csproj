@@ -118,6 +118,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\FinancialData.cs" />
+    <Compile Include="Models\TradeAlgos\SMACrossingAlgo.cs" />
     <Compile Include="ViewModels\LvChartGrapher.cs" />
     <Compile Include="ViewModels\StockButton.cs" />
     <Compile Include="Models\TradeAlgos\BuyOnBollingerAlgo.cs" />

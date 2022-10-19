@@ -35,7 +35,7 @@ namespace Backtesting.TradeAlgos
 
        
 
-        public override AlgoAction RunAlgorithmSingleStep(Stock stock, int index)
+        public override AlgoAction RunAlgorithmSingleStep(Stock stock, int index, int candleSize)
         {
             int howManyStocksToBuy = 1;
             if(stock.PriceData[index].ClosingPrice < stock.PriceData[index].LowerBollinger)
@@ -49,7 +49,10 @@ namespace Backtesting.TradeAlgos
             return null;
         }
 
-
+        public override AlgoAction RunAlgorithmSingleStep(Stock stock, int index)
+        {
+            throw new NotImplementedException();
+        }
 
         public override string ToString()
         {
