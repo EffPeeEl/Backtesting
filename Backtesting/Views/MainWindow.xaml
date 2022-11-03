@@ -160,11 +160,24 @@
                     
 
                 </ListBox>
+
+
+
+                <WpfPlot 
+                    x:Name="Surface" 
+                    Grid.Row="0" Grid.Column="1" 
+                    Grid.ColumnSpan="2" 
+                    Grid.RowSpan="6" 
+                    
+                    >
                 
 
+                </WpfPlot>
                 
 
-                <s:SciChartSurface x:Name="Surface" 
+                <!--
+                
+                   <s:SciChartSurface x:Name="Surface" 
                                    Grid.Row="0" Grid.Column="1" 
                                    Grid.ColumnSpan="2" 
                                    Grid.RowSpan="6" >
@@ -190,48 +203,45 @@
                             StrokeThickness="1"
                             AntiAliasing="False"
                             />
-                        
+
 
 
                     </s:SciChartSurface.RenderableSeries>
 
-
-
                     <s:SciChartSurface.XAxis>
-                        <s:CategoryDateTimeAxis 
+                    <s:CategoryDateTimeAxis 
                             AutoRange="Always"
                             x:Name="rSeriesXAxis"/>
 
-                    </s:SciChartSurface.XAxis>
+                </s:SciChartSurface.XAxis>
 
-                    <s:SciChartSurface.YAxis >
-                        <s:NumericAxis
+                <s:SciChartSurface.YAxis >
+                    <s:NumericAxis
                             AutoRange="Always"
                             x:Name="rSeriesYAxis"/>
-                    </s:SciChartSurface.YAxis>
+                </s:SciChartSurface.YAxis>
 
-                    <s:SciChartSurface.ChartModifier>
-                        <s:ModifierGroup>
-                            <!-- Allow drag to zoom on Left mouse -->
-                            <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton"
+                <s:SciChartSurface.ChartModifier>
+                    <s:ModifierGroup>
+                <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton"
                                                  RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF"
                                                  RubberBandStrokeDashArray="2 2"/>
-                            <!-- Allow pan on Right mouse drag -->
-                            <s:ZoomPanModifier ExecuteOn="MouseRightButton" ClipModeX="None" />
-                            <!-- Allow Dragging YAxis to Scale -->
-                            <s:YAxisDragModifier DragMode="Scale"/>
-                            <!-- Allow Dragging XAxis to Pan -->
-                            <s:XAxisDragModifier DragMode="Pan"/>
-                            <!-- Allow Mousewheel Zoom -->
-                            <s:MouseWheelZoomModifier/>
-                            <!-- Allow Zoom to Extents on double click -->
-                            <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
-                        </s:ModifierGroup>
-                    </s:SciChartSurface.ChartModifier>
+                <s:ZoomPanModifier ExecuteOn="MouseRightButton" ClipModeX="None" />
+                <s:YAxisDragModifier DragMode="Scale"/>
+                <s:XAxisDragModifier DragMode="Pan"/>
+                <s:MouseWheelZoomModifier/>
+                <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
+                </s:ModifierGroup>
+                </s:SciChartSurface.ChartModifier>
 
-                    <!--  XAxis, YAxis omitted for brevity  -->
 
                 </s:SciChartSurface>
+                -->
+                
+          
+                
+             
+
 
 
 

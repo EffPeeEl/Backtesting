@@ -18,6 +18,7 @@ using System.Configuration;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using Backtesting.Models.TradeAlgos;
+using ScottPlot;
 
 namespace Backtesting
 {
@@ -201,7 +202,7 @@ namespace Backtesting
 
             CreateStockPanel();
 
-
+            Surface.Plot.XAxis.DateTimeFormat(true);
             stockGrapher = new SciChartStockGrapher(5);
             CandleDataSeries = new OhlcDataSeries<DateTime, double>();
             
@@ -359,6 +360,9 @@ namespace Backtesting
             LowerBollingerBandSeries = new XyDataSeries<DateTime, double>();
             VolumeColumnSeries = new XyDataSeries<DateTime, double>();
 
+            OHLC[] prices = new OHLC[0];
+            
+            
 
             s.CreateBollingerValues(Settings.BollingerStDevs, Settings.BollingerAvgDays) ;
 
@@ -368,7 +372,14 @@ namespace Backtesting
 
                 for (int i = 0; i < s.PriceData.Count; i += Settings.CandleSizeDays)
                 {
-                    (DateTime x , OhlcPoint y) = stockGrapher.GetNextDayDataCandle(s, i, Settings.CandleSizeDays);
+                    (DateTime x , OhlcPoint y, TimeSpan span) = stockGrapher.GetNextDayDataCandle(s, i, Settings.CandleSizeDays);
+
+                    
+                    Surface.Plot.Clear();
+                    prices = AppendOhlcArray(prices, y.Open, y.High, y.Low, y.Close, x, span, 100);
+                    
+                    Surface.Plot.AddCandlesticks(prices);
+                    
                     
 
                     CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close); 
@@ -386,6 +397,7 @@ namespace Backtesting
 
                     App.Current.Dispatcher.Invoke((System.Action)delegate // <--- HERE
                     {
+                        Surface.Refresh();
                         //ADD TO LOG
                         if (Settings.WillLogPrice)
                             LogList.Insert(0, $"{x.ToShortDateString()}: {y.Close}");
@@ -395,6 +407,19 @@ namespace Backtesting
 
                 }
             }).Start();
+        
+        }
+        private OHLC[] AppendOhlcArray(OHLC[] arr, double open, double high, double low, double close, DateTime date,TimeSpan span,double volume )
+        {
+            OHLC[] arr2 = new OHLC[arr.Length + 1];
+            for(int i = 0; i < arr.Length; i++)
+            {
+                arr2[i] = arr[i];
+            }
+
+            arr2[arr2.Length - 1] = new OHLC(open, high, low, close, date, span, volume);
+
+            return arr2;
         }
 
         private void SimulationButton_Click(object sender, RoutedEventArgs e)
@@ -421,7 +446,7 @@ namespace Backtesting
 
                 for (int i = 0; i < SelectedStock.PriceData.Count; i += Settings.CandleSizeDays)
                 {
-                    (DateTime x, OhlcPoint y) = stockGrapher.GetNextDayDataCandle(SelectedStock, i, Settings.CandleSizeDays);
+                    (DateTime x, OhlcPoint y, TimeSpan span) = stockGrapher.GetNextDayDataCandle(SelectedStock, i, Settings.CandleSizeDays);
 
 
                     CandleDataSeries.Append(x, y.Open, y.High, y.Low, y.Close);

@@ -28,76 +28,7 @@ namespace Backtesting
         }
 
 
-        //public OhlcDataSeries<DateTime, double> CreateCandleSciChart(Stock s)
-        //{
-
-
-        //    OhlcDataSeries<DateTime, double> ohlcSci = new OhlcDataSeries<DateTime, double>();
-
-        //    for (int i = 0; i < Math.Ceiling((double)S.PriceData.Count / candleSize); i++)
-        //    {
-        //        var candleData = GetNextDayDataCandle(i * candleSize, candleSize);
-
-        //        ohlcSci.Append(candleData.Item1, candleData.Item2.Open, candleData.Item2.High, candleData.Item2.Low, candleData.Item2.Close);
-
-        //    }
-
-        //    return ohlcSci;
-
-        //}
-
-
-
-        //public XyDataSeries<DateTime, double> CreateBollingerSci(int candleSize, bool isUpper, double _bollingerStDevs, int _bollingerAvgDayCount)
-        //{
-        //    S.CreateBollingerValues(_bollingerStDevs, _bollingerAvgDayCount);
-
-
-        //    XyDataSeries<DateTime, double> BollingerSeries = new XyDataSeries<DateTime, double>();
-        //    double sum;
-        //    double averageInCandle = 0;
-
-        //    // NOTE TO SELF; MIGHT BE BETTEER TO WRITE ALGO THAT WRITES BOLLINGER IN CSV FLE INSTEAD
-        //    if(isUpper)
-        //        for (int i = candleSize; i < S.PriceData.Count; i += candleSize)
-        //        {
-        //            sum = 0;
-        //            for (int j = 0; j < candleSize; j++)
-        //            {
-        //                sum += S.PriceData[i-j].UpperBollinger;
-        //            }
-        //            averageInCandle = sum / candleSize;
-        //            BollingerSeries.Append(S.PriceData[i].Date, averageInCandle);
-        //        }
-        //    else
-        //        for (int i = candleSize; i < S.PriceData.Count; i += candleSize)
-        //        {
-        //            sum = 0;
-        //            for (int j = 0; j < candleSize; j++)
-        //            {
-        //                sum += S.PriceData[i - j].LowerBollinger;
-        //            }
-        //            averageInCandle = sum / candleSize;
-        //            BollingerSeries.Append(S.PriceData[i].Date, averageInCandle);
-
-        //        }
-
-        //    return BollingerSeries;
-
-        //}
-
-
-        //internal OhlcDataSeries<DateTime, double> CreateGraphSci(string senderUID, string typeOfChart, int daysInCandle)
-        //{
-        //    switch (typeOfChart)
-        //    {
-        //        case "Candle":
-        //            return CreateCandleSciChart(daysInCandle);
-        //        default:
-        //            return new OhlcDataSeries<DateTime, double>();
-
-        //    }
-        //}
+   
 
         public (DateTime, double) GetNextDayDataBollinger(Stock s, int dayIndex, bool isUpper)
         {
@@ -113,16 +44,21 @@ namespace Backtesting
 
 
 
-        public (DateTime, OhlcPoint) GetNextDayDataCandle(Stock S,int dayIndex, int candleSize)
+        public (DateTime, OhlcPoint, TimeSpan) GetNextDayDataCandle(Stock S,int dayIndex, int candleSize)
         {
             double highest;
             double lowest;
             double starting;
             double closing;
-            (DateTime, OhlcPoint) data;
+            (DateTime, OhlcPoint, TimeSpan) data;
+
+            if (dayIndex >= S.PriceData.Count - candleSize - 1)
+                data.Item3 = TimeSpan.FromDays(1);
+            else
+                data.Item3 = S.PriceData[dayIndex + candleSize].Date - S.PriceData[dayIndex].Date;
 
             //Case where last candle amount isnt divisible 
-             if(dayIndex + candleSize >= S.PriceData.Count)
+            if (dayIndex + candleSize >= S.PriceData.Count)
                 candleSize = S.PriceData.Count - dayIndex;
 
             highest = 0;
@@ -142,6 +78,11 @@ namespace Backtesting
             closing = S.PriceData[dayIndex + candleSize - 1].ClosingPrice;
             data.Item1 = S.PriceData[dayIndex].Date;
             data.Item2 = new OhlcPoint(starting, highest, lowest, closing);
+
+
+
+
+
 
             return data;
 
