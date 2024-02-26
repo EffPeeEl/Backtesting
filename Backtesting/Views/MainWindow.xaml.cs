@@ -231,7 +231,9 @@ namespace Backtesting
             {
                 string sAttr = ConfigurationManager.AppSettings.Get("StockFilesLocation");
 
-                DirectoryInfo d = new DirectoryInfo(sAttr);
+                //DirectoryInfo d = new DirectoryInfo(sAttr);
+
+                DirectoryInfo d = new DirectoryInfo("C:\\Users\\Felix\\Documents\\University\\Stock Prediction Models\\Data\\Raw data\\StockCSVs_From_Nasdaq_Prob_Not_Use");
 
                 foreach (var file in d.GetFiles("*.csv"))
                 {
